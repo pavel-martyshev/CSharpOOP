@@ -14,19 +14,19 @@ internal class Program
 
         Range range1 = new(range1From, range1To);
 
-        //Console.WriteLine($"Длина интервала: {range1.GetLength():f2}");
+        Console.WriteLine($"Длина интервала: {range1.GetLength():f2}");
 
-        //Console.Write("Введите число для проверки:" + Environment.NewLine + "> ");
-        //double numberToCheck = double.Parse(Console.ReadLine()!.Replace('.', ','));
+        Console.Write("Введите число для проверки:" + Environment.NewLine + "> ");
+        double numberToCheck = double.Parse(Console.ReadLine()!.Replace('.', ','));
 
-        //if (range1.IsInside(numberToCheck))
-        //{
-        //    Console.WriteLine($"Число {numberToCheck} находится внутри интервала от {range1.From} до {range1.To}");
-        //}
-        //else
-        //{
-        //    Console.WriteLine($"Число {numberToCheck} находится вне интервала от {range1.From} до {range1.To}");
-        //}
+        if (range1.IsInside(numberToCheck))
+        {
+            Console.WriteLine($"Число {numberToCheck} находится внутри интервала от {range1.From} до {range1.To}");
+        }
+        else
+        {
+            Console.WriteLine($"Число {numberToCheck} находится вне интервала от {range1.From} до {range1.To}");
+        }
 
         Console.Write("Введите начало второго интервала:" + Environment.NewLine + "> ");
         double range2From = double.Parse(Console.ReadLine()!.Replace('.', ','));
