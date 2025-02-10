@@ -1,4 +1,6 @@
-﻿namespace ShapesTask.Interfaces;
+﻿using ShapesTask.Interfaces;
+
+namespace ShapesTask.Comparators;
 
 internal class IShapeAreaComparer : IComparer<IShape>
 {
