@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RangeTask", "RangeTask\Rang
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShapesTask", "ShapesTask\ShapesTask.csproj", "{5167228A-DF67-4D2A-9566-14FAD929A479}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorTask", "VectorTask\VectorTask.csproj", "{F25C9CA9-378A-4174-BCE1-93FA8513924A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{5167228A-DF67-4D2A-9566-14FAD929A479}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5167228A-DF67-4D2A-9566-14FAD929A479}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5167228A-DF67-4D2A-9566-14FAD929A479}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F25C9CA9-378A-4174-BCE1-93FA8513924A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F25C9CA9-378A-4174-BCE1-93FA8513924A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F25C9CA9-378A-4174-BCE1-93FA8513924A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F25C9CA9-378A-4174-BCE1-93FA8513924A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
