@@ -1,6 +1,6 @@
 ﻿namespace VectorTask;
 
-internal class Vector
+public class Vector
 {
     public List<double> Components { get; set; }
 
