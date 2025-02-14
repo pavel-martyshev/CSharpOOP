@@ -43,15 +43,9 @@ public class Vector
         Components = Enumerable.Repeat(0.0, size).ToList();
     }
 
-    public Vector(Vector vector)
-    {
-        Components = [.. vector.Components];
-    }
+    public Vector(Vector vector) => Components = [.. vector.Components];
 
-    public Vector(double[] values)
-    {
-        Components = [.. values];
-    }
+    public Vector(double[] values) => Components = [.. values];
 
     public Vector(int size, double[] values)
     {
