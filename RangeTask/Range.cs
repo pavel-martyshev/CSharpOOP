@@ -26,43 +26,36 @@ internal class Range(double from, double to)
         double intersectionFrom = Math.Max(From, range.From);
         double intersectionTo = Math.Min(To, range.To);
 
-        if (To < intersectionFrom | intersectionFrom == intersectionTo)
+        if (intersectionFrom < intersectionTo && intersectionFrom != intersectionTo)
         {
-            return null;
+            return new Range(intersectionFrom, intersectionTo);
         }
 
-        return new Range(intersectionFrom, intersectionTo);
+        return null;
     }
 
     public Range[] GetUnion(Range range)
     {
-        if (To >= range.From)
+        if (IsInside(range.From) || IsInside(range.To))
         {
             return [new Range(Math.Min(From, range.From), Math.Max(To, range.To))];
         }
 
-        return [this, range];
+        return [new Range(Math.Min(From, range.From), Math.Min(To, range.To)), new Range(Math.Max(From, range.From), Math.Max(To, range.To))];
     }
 
     public Range[] GetDifference(Range range)
     {
-        if ((GetIntersection(range) is null) | (From >= range.From && To <= range.To))
+        if (IsInside(range.From) && IsInside(range.To))
         {
-            return [new Range(0, 0)];
+            if (To == range.To)
+            {
+                return [new Range(From, range.From)];
+            }
+
+            return [new Range(From, range.From), new Range(range.To, To)];
         }
 
-        List<Range> ranges = [];
-
-        if (From < range.From)
-        {
-            ranges.Add(new Range(From, Math.Min(To, range.From - 1)));
-        }
-
-        if (To > range.To)
-        {
-            ranges.Add(new Range(Math.Max(From, range.To + 1), To));
-        }
-
-        return [.. ranges];
+        return [];
     }
 }

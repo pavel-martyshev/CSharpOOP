@@ -35,11 +35,12 @@ internal class Program
         double range2To = double.Parse(Console.ReadLine()!.Replace('.', ','));
 
         Range range2 = new(range2From, range2To);
-        Range? intersection = range1.GetIntersection(range2);
 
-        if (intersection is not null)
+        Range? rangesIntersection = range1.GetIntersection(range2);
+
+        if (rangesIntersection is not null)
         {
-            Console.WriteLine($"Интервалы {range1} и {range2} пересекаются в точках {intersection}");
+            Console.WriteLine($"Интервалы {range1} и {range2} пересекаются в точках {rangesIntersection}");
         }
         else
         {
@@ -53,20 +54,20 @@ internal class Program
             Console.WriteLine(rangesUnion);
         }
 
-        Range[]? rangeDifference = range1.GetDifference(range2);
+        Range[]? difference = range1.GetDifference(range2);
 
-        if (rangeDifference is not null)
+        if (difference.Length == 0)
         {
-            Console.WriteLine($"Разность интервалов {range1} и {range2}:");
-
-            foreach (Range difference in rangeDifference)
-            {
-                Console.WriteLine(difference);
-            }
+            Console.WriteLine($"Не удалось найти разность интервалов {range1} и {range2}");
         }
         else
         {
-            Console.WriteLine($"Не удалось найти разность интервалов {range1} и {range2}");
+            Console.WriteLine($"Разность интервалов {range1} и {range2}:");
+
+            foreach (Range rangesDifference in difference)
+            {
+                Console.WriteLine(rangesDifference);
+            }
         }
     }
 }
