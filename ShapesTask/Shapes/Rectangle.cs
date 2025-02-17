@@ -2,32 +2,32 @@
 
 namespace ShapesTask.Shapes;
 
-internal class Rectangle(double a, double b) : IShape
+internal class Rectangle(double height, double width) : IShape
 {
-    public double A { get; set; } = a;
+    public double Height { get; set; } = height;
 
-    public double B { get; set; } = b;
+    public double Width { get; set; } = width;
 
-    public double GetWidth() => Math.Min(A, B);
+    public double GetWidth() => Width;
 
-    public double GetHeight() => 0;
+    public double GetHeight() => Height;
 
-    public double GetArea() => A * B;
+    public double GetArea() => Height * Width;
 
-    public double GetPerimeter() => 2 * (A + B);
+    public double GetPerimeter() => 2 * (Height + Width);
 
     public override string ToString()
     {
-        return $"Прямоугольник({A}, {B})";
+        return $"Прямоугольник({Height}, {Width})";
     }
 
     public override int GetHashCode()
     {
-        int prime = 17;
+        const int prime = 17;
         int hash = 1;
 
-        hash = prime * hash + A.GetHashCode();
-        hash = prime * hash + B.GetHashCode();
+        hash = prime * hash + Height.GetHashCode();
+        hash = prime * hash + Width.GetHashCode();
 
         return hash;
     }
@@ -45,6 +45,6 @@ internal class Rectangle(double a, double b) : IShape
         }
 
         Rectangle rectangle = (Rectangle)obj;
-        return A == rectangle.A && B == rectangle.B;
+        return Height == rectangle.Height && Width == rectangle.Width;
     }
 }

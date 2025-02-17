@@ -10,16 +10,16 @@ internal class Circle(double radius) : IShape
 
     public double GetHeight() => 2 * Radius;
 
-    public double GetArea() => Math.Round(Math.PI * Math.Pow(Radius, 2), 2, MidpointRounding.AwayFromZero);
+    public double GetArea() => Math.PI * (Radius * Radius);
 
-    public double GetPerimeter() => Math.Round(2 * Math.PI * Radius, 2, MidpointRounding.AwayFromZero);
+    public double GetPerimeter() => 2 * Math.PI * Radius;
 
     public override string ToString()
     {
         return $"Круг({Radius})";
     }
 
-    public override int GetHashCode() => 17 * 1 + Radius.GetHashCode();
+    public override int GetHashCode() => 17 + Radius.GetHashCode();
 
     public override bool Equals(object? obj)
     {

@@ -1,4 +1,4 @@
-﻿using ShapesTask.Comparators;
+﻿using ShapesTask.Comparers;
 using ShapesTask.Interfaces;
 using ShapesTask.Shapes;
 

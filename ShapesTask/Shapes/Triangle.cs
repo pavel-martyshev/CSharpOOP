@@ -16,55 +16,30 @@ internal class Triangle(double x1, double y1, double x2, double y2, double x3, d
 
     public double Y3 { get; set; } = y3;
 
-    public double Side1 { get; set; } = Math.Round(Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2)), 2, MidpointRounding.AwayFromZero);
-
-    public double Side2 { get; set; } = Math.Round(Math.Sqrt(Math.Pow(x3 - x2, 2) + Math.Pow(y3 - y2, 2)), 2, MidpointRounding.AwayFromZero);
-
-    public double Side3 { get; set; } = Math.Round(Math.Sqrt(Math.Pow(x1 - x3, 2) + Math.Pow(y1 - y3, 2)), 2, MidpointRounding.AwayFromZero);
-
-    private static double GetMaxCoordinate(double point1, double point2, double point3)
+    private static double GetSideLength(double minuendX, double subtrahendX, double minuendY, double subtrahendY)
     {
-        if (point1 >= point2 && point1 >= point3)
-        {
-            return point1;
-        }
-
-        if (point2 >= point1 && point2 >= point3)
-        {
-            return point2;
-        }
-
-        return point3;
+        return Math.Sqrt(Math.Pow(minuendX - subtrahendX, 2) + Math.Pow(minuendY - subtrahendY, 2));
     }
 
-    private static double GetMinCoordinate(double point1, double point2, double point3)
-    {
-        if (point1 <= point2 && point1 <= point3)
-        {
-            return point1;
-        }
+    public double Side1 { get; } = GetSideLength(x2, x1, y2, y1);
 
-        if (point2 <= point1 && point2 <= point3)
-        {
-            return point2;
-        }
+    public double Side2 { get; } = GetSideLength(x3, x2, y3, y2);
 
-        return point3;
-    }
+    public double Side3 { get; } = GetSideLength(x1, x3, y1, y3);
 
-    public double GetWidth() => GetMaxCoordinate(X1, X2, X3) - GetMinCoordinate(X1, X2, X3);
+    public double GetWidth() => Math.Max(X1, Math.Max(X2, X3)) - Math.Min(X1, Math.Min(X2, X3));
 
-    public double GetHeight() => GetMaxCoordinate(Y1, Y2, Y3) - GetMinCoordinate(Y1, Y2, Y3);
+    public double GetHeight() => Math.Max(Y1, Math.Max(Y2, Y3)) - Math.Min(Y1, Math.Min(Y2, Y3));
 
     public double GetArea() => 0.5 * Math.Abs(X1 * (Y2 - Y3) + X2 * (Y3 - Y1) + X3 * (Y1 - Y2));
 
-    public double GetPerimeter() => Math.Round(Side1 + Side2 + Side3, 2, MidpointRounding.AwayFromZero);
+    public double GetPerimeter() => Side1 + Side2 + Side3;
 
     public override string ToString() => $"Треугольник(({X1}, {Y1}), ({X2}, {Y2}), ({X3}, {Y3}))";
 
     public override int GetHashCode()
     {
-        int prime = 17;
+        const int prime = 17;
         int hash = 1;
 
         hash = prime * hash + X1.GetHashCode();
@@ -75,10 +50,6 @@ internal class Triangle(double x1, double y1, double x2, double y2, double x3, d
 
         hash = prime * hash + X3.GetHashCode();
         hash = prime * hash + Y3.GetHashCode();
-
-        hash = prime * hash + Side1.GetHashCode();
-        hash = prime * hash + Side2.GetHashCode();
-        hash = prime * hash + Side3.GetHashCode();
 
         return hash;
     }
@@ -96,6 +67,6 @@ internal class Triangle(double x1, double y1, double x2, double y2, double x3, d
         }
 
         Triangle triangle = (Triangle)obj;
-        return Side1 == triangle.Side1 && Side2 == triangle.Side2 && Side3 == triangle.Side3;
+        return X1 == triangle.X1 && Y1 == triangle.Y1 && X2 == triangle.X2 && Y2 == triangle.Y2 && X3 == triangle.X3 && Y3 == triangle.Y3;
     }
 }

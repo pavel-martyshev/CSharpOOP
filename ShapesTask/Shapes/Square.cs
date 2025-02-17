@@ -2,24 +2,24 @@
 
 namespace ShapesTask.Shapes;
 
-internal class Square(double a) : IShape
+internal class Square(double sideLength) : IShape
 {
-    private double A { get; set; } = a;
+    private double SideLength { get; set; } = sideLength;
 
-    public double GetWidth() => A;
+    public double GetWidth() => SideLength;
 
-    public double GetHeight() => 0;
+    public double GetHeight() => SideLength;
 
-    public double GetArea() => A * A;
+    public double GetArea() => SideLength * SideLength;
 
-    public double GetPerimeter() => A * 4;
+    public double GetPerimeter() => SideLength * 4;
 
     public override string ToString()
     {
-        return $"Квадрат({A})";
+        return $"Квадрат({SideLength})";
     }
 
-    public override int GetHashCode() => 17 * 1 + A.GetHashCode();
+    public override int GetHashCode() => 17 + SideLength.GetHashCode();
 
     public override bool Equals(object? obj)
     {
@@ -34,6 +34,6 @@ internal class Square(double a) : IShape
         }
 
         Square square = (Square)obj;
-        return A == square.A;
+        return SideLength == square.SideLength;
     }
 }
