@@ -2,7 +2,7 @@
 
 namespace ShapesTask.Shapes;
 
-internal class Rectangle(double height, double width) : IShape
+public class Rectangle(double height, double width) : IShape
 {
     public double Height { get; set; } = height;
 

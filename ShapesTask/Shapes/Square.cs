@@ -2,7 +2,7 @@
 
 namespace ShapesTask.Shapes;
 
-internal class Square(double sideLength) : IShape
+public class Square(double sideLength) : IShape
 {
     private double SideLength { get; set; } = sideLength;
 

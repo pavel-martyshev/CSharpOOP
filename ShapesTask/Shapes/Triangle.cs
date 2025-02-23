@@ -2,7 +2,7 @@
 
 namespace ShapesTask.Shapes;
 
-internal class Triangle(double x1, double y1, double x2, double y2, double x3, double y3) : IShape
+public class Triangle(double x1, double y1, double x2, double y2, double x3, double y3) : IShape
 {
     public double X1 { get; set; } = x1;
 
@@ -16,9 +16,9 @@ internal class Triangle(double x1, double y1, double x2, double y2, double x3, d
 
     public double Y3 { get; set; } = y3;
 
-    private static double GetSideLength(double minuendX, double subtrahendX, double minuendY, double subtrahendY)
+    private static double GetSideLength(double x1, double y1, double x2, double y2)
     {
-        return Math.Sqrt(Math.Pow(minuendX - subtrahendX, 2) + Math.Pow(minuendY - subtrahendY, 2));
+        return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
     }
 
     public double Side1 { get; } = GetSideLength(x2, x1, y2, y1);
