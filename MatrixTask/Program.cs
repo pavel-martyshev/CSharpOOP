@@ -6,7 +6,8 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        double[,] matrixArray = {
+        double[,] matrixArray = 
+        {
             { 1, 2, 3 },
             { 4, 5, 6 },
             { 7, 8, 9 }
@@ -14,7 +15,8 @@ internal class Program
 
         Matrix matrix1 = new(matrixArray);
 
-        double[,] matrixArray2 = {
+        double[,] matrixArray2 = 
+        {
             { 9, 8, 7 },
             { 6, 5, 4 },
             { 3, 2, 1 }
@@ -22,17 +24,19 @@ internal class Program
 
         Matrix matrix2 = new(matrixArray2);
 
+        matrix1.Add(matrix2);
+
         Console.WriteLine($"Матрица 1:{Environment.NewLine}{matrix1}");
         Console.WriteLine();
         Console.WriteLine($"Матрица 2:{Environment.NewLine}{matrix2}");
 
-        Matrix matricesSum = Matrix.AdditionTwoMatrices(matrix1, matrix2);
+        Matrix matricesSum = Matrix.GetMatricesAddition(matrix1, matrix2);
         Console.WriteLine($"{Environment.NewLine}Матрица 1 + Матрица 2:{Environment.NewLine}{matricesSum}");
 
-        Matrix matricesSubtract = Matrix.SubtractTwoMatrices(matrix1, matrix2);
+        Matrix matricesSubtract = Matrix.GetMatricesSubtract(matrix1, matrix2);
         Console.WriteLine($"{Environment.NewLine}Матрица 1 - Матрица 2:{Environment.NewLine}{matricesSubtract}");
 
-        Matrix matricesMultiplication = Matrix.MultiplyTwoMatrices(matrix1, matrix2);
+        Matrix matricesMultiplication = Matrix.GetMatricesMultiply(matrix1, matrix2);
         Console.WriteLine($"{Environment.NewLine}Матрица 1 * Матрица 2:{Environment.NewLine}{matricesMultiplication}");
 
         matrix1.Transpose();
@@ -52,8 +56,8 @@ internal class Program
         }
 
         Vector vector = new([1, 2, 3]);
-        Vector resultVector = matrix1.MultiplyByVector(vector);
+        matrix1.MultiplyByVector(vector);
 
-        Console.WriteLine($"{Environment.NewLine}Матрица 1 * вектор:{Environment.NewLine}{resultVector}");
+        Console.WriteLine($"{Environment.NewLine}Матрица 1 поле умножения на вектор ({vector}):{Environment.NewLine}{matrix1}");
     }
 }
