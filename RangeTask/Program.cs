@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace RangeTask;
+﻿namespace RangeTask;
 
 internal class Program
 {
@@ -36,11 +34,11 @@ internal class Program
 
         Range range2 = new(range2From, range2To);
 
-        Range? rangesIntersection = range1.GetIntersection(range2);
+        Range? intersection = range1.GetIntersection(range2);
 
-        if (rangesIntersection is not null)
+        if (intersection is not null)
         {
-            Console.WriteLine($"Интервалы {range1} и {range2} пересекаются в точках {rangesIntersection}");
+            Console.WriteLine($"Интервалы {range1} и {range2} пересекаются в точках {intersection}");
         }
         else
         {
@@ -48,26 +46,9 @@ internal class Program
         }
 
         Console.WriteLine($"Результат объединения интервалов {range1} и {range2}:");
+        Console.WriteLine(string.Join($"{Environment.NewLine}", (object?[])range1.GetUnion(range2)));
 
-        foreach (Range rangesUnion in range1.GetUnion(range2))
-        {
-            Console.WriteLine(rangesUnion);
-        }
-
-        Range[]? difference = range1.GetDifference(range2);
-
-        if (difference.Length == 0)
-        {
-            Console.WriteLine($"Не удалось найти разность интервалов {range1} и {range2}");
-        }
-        else
-        {
-            Console.WriteLine($"Разность интервалов {range1} и {range2}:");
-
-            foreach (Range rangesDifference in difference)
-            {
-                Console.WriteLine(rangesDifference);
-            }
-        }
+        Console.WriteLine($"Разность интервалов {range1} и {range2}:");
+        Console.WriteLine(string.Join($"{Environment.NewLine}", (object?[])range1.GetDifference(range2)));
     }
 }
