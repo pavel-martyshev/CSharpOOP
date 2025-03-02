@@ -8,13 +8,13 @@ class SinglyLinkedList<T>
     public SinglyLinkedList(T data)
     {
         head = new ListItem<T>(data, head!);
-        Count += 1;
+        Count++;
     }
 
     public SinglyLinkedList(ListItem<T> node)
     {
         head = node;
-        Count += 1;
+        Count++;
     }
 
     private void ValidateIndex(int index)
@@ -65,7 +65,7 @@ class SinglyLinkedList<T>
 
         ListItem<T> node = GetNodeByIndex(index);
         GetNodeByIndex(index - 1).Next = node.Next;
-        Count -= 1;
+        Count--;
 
         return node.Value;
     }
@@ -79,7 +79,7 @@ class SinglyLinkedList<T>
             if (node.Value!.Equals(value))
             {
                 previousNode.Next = node.Next;
-                Count -= 1;
+                Count--;
 
                 return true;
             }
@@ -93,7 +93,7 @@ class SinglyLinkedList<T>
     public T RemoveFirst()
     {
         (T oldValue, head) = (head.Value, head.Next!);
-        Count -= 1;
+        Count--;
 
         return oldValue;
     }
@@ -101,14 +101,14 @@ class SinglyLinkedList<T>
     public void AddFirst(T value)
     {
         head = new(value, head);
-        Count += 1;
+        Count++;
     }
 
     public void AddFirst(ListItem<T> node)
     {
         node.Next = head;
         head = node;
-        Count += 1;
+        Count++;
     }
 
     public void AddByIndex(int index, T value)
@@ -116,7 +116,7 @@ class SinglyLinkedList<T>
         ValidateIndex(index);
 
         GetNodeByIndex(index - 1).Next = new ListItem<T>(value, GetNodeByIndex(index));
-        Count += 1;
+        Count++;
     }
 
     public void AddByIndex(int index, ListItem<T> node)
@@ -125,7 +125,7 @@ class SinglyLinkedList<T>
 
         node.Next = GetNodeByIndex(index);
         GetNodeByIndex(index - 1).Next = node;
-        Count += 1;
+        Count++;
     }
 
     public void Expand()
