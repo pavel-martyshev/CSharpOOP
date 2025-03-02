@@ -35,18 +35,22 @@ internal class Program
 
         Array.Sort(shapes, new ShapeAreaComparer());
 
-        Console.WriteLine($"Фигура с самой большой площадью - {shapes[^1]}:");
-        Console.WriteLine($"Площадь - {shapes[^1].GetArea()}");
-        Console.WriteLine($"Ширина - {shapes[^1].GetWidth()}");
-        Console.WriteLine($"Высота - {shapes[^1].GetHeight()}");
-        Console.WriteLine($"Периметр - {shapes[^1].GetPerimeter()}{Environment.NewLine}");
+        IShape maxAreaShape = shapes[^1];
+
+        Console.WriteLine($"Фигура с самой большой площадью - {maxAreaShape}:");
+        Console.WriteLine($"Площадь - {maxAreaShape.GetArea()}");
+        Console.WriteLine($"Ширина - {maxAreaShape.GetWidth()}");
+        Console.WriteLine($"Высота - {maxAreaShape.GetHeight()}");
+        Console.WriteLine($"Периметр - {maxAreaShape.GetPerimeter()}{Environment.NewLine}");
 
         Array.Sort(shapes, new ShapePerimeterComparer());
 
-        Console.WriteLine($"Фигура со вторым по величине периметром - {shapes[^2]}:");
-        Console.WriteLine($"Площадь - {shapes[^2].GetArea()}");
-        Console.WriteLine($"Ширина - {shapes[^2].GetWidth()}");
-        Console.WriteLine($"Высота - {shapes[^2].GetHeight()}");
-        Console.WriteLine($"Периметр - {shapes[^2].GetPerimeter()}{Environment.NewLine}");
+        IShape secondPerimeterShape = shapes[^2];
+
+        Console.WriteLine($"Фигура со вторым по величине периметром - {secondPerimeterShape}:");
+        Console.WriteLine($"Площадь - {secondPerimeterShape.GetArea()}");
+        Console.WriteLine($"Ширина - {secondPerimeterShape.GetWidth()}");
+        Console.WriteLine($"Высота - {secondPerimeterShape.GetHeight()}");
+        Console.WriteLine($"Периметр - {secondPerimeterShape.GetPerimeter()}{Environment.NewLine}");
     }
 }

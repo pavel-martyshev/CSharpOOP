@@ -16,16 +16,16 @@ public class Triangle(double x1, double y1, double x2, double y2, double x3, dou
 
     public double Y3 { get; set; } = y3;
 
+    public double Side1 { get; } = GetSideLength(x1, y1, x2, y2);
+
+    public double Side2 { get; } = GetSideLength(x2, y2, x3, y3);
+
+    public double Side3 { get; } = GetSideLength(x3, y3, x1, y1);
+
     private static double GetSideLength(double x1, double y1, double x2, double y2)
     {
         return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
     }
-
-    public double Side1 { get; } = GetSideLength(x2, x1, y2, y1);
-
-    public double Side2 { get; } = GetSideLength(x3, x2, y3, y2);
-
-    public double Side3 { get; } = GetSideLength(x1, x3, y1, y3);
 
     public double GetWidth() => Math.Max(X1, Math.Max(X2, X3)) - Math.Min(X1, Math.Min(X2, X3));
 
