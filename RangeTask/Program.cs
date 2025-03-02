@@ -46,9 +46,18 @@ internal class Program
         }
 
         Console.WriteLine($"Результат объединения интервалов {range1} и {range2}:");
-        Console.WriteLine(string.Join($"{Environment.NewLine}", (object?[])range1.GetUnion(range2)));
+        Console.WriteLine(string.Join(Environment.NewLine, (object?[])range1.GetUnion(range2)));
 
+        Range[] difference = range1.GetDifference(range2);
         Console.WriteLine($"Разность интервалов {range1} и {range2}:");
-        Console.WriteLine(string.Join($"{Environment.NewLine}", (object?[])range1.GetDifference(range2)));
+
+        if (difference.Length == 0)
+        {
+            Console.WriteLine(0);
+        }
+        else
+        {
+            Console.WriteLine(string.Join(Environment.NewLine, (object?[])difference));
+        }
     }
 }
