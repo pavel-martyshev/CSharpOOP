@@ -30,13 +30,13 @@ internal class Program
         Console.WriteLine();
         Console.WriteLine($"Матрица 2:{Environment.NewLine}{matrix2}");
 
-        Matrix matricesSum = Matrix.GetMatricesAddition(matrix1, matrix2);
+        Matrix matricesSum = Matrix.GetSum(matrix1, matrix2);
         Console.WriteLine($"{Environment.NewLine}Матрица 1 + Матрица 2:{Environment.NewLine}{matricesSum}");
 
-        Matrix matricesSubtract = Matrix.GetMatricesSubtract(matrix1, matrix2);
+        Matrix matricesSubtract = Matrix.GetDifference(matrix1, matrix2);
         Console.WriteLine($"{Environment.NewLine}Матрица 1 - Матрица 2:{Environment.NewLine}{matricesSubtract}");
 
-        Matrix matricesMultiplication = Matrix.GetMatricesMultiply(matrix1, matrix2);
+        Matrix matricesMultiplication = Matrix.GetProduct(matrix1, matrix2);
         Console.WriteLine($"{Environment.NewLine}Матрица 1 * Матрица 2:{Environment.NewLine}{matricesMultiplication}");
 
         matrix1.Transpose();
@@ -55,9 +55,9 @@ internal class Program
             Console.WriteLine(e);
         }
 
-        Vector vector = new([1, 2, 3]);
-        matrix1.MultiplyByVector(vector);
+        Console.WriteLine();
 
-        Console.WriteLine($"{Environment.NewLine}Матрица 1 поле умножения на вектор ({vector}):{Environment.NewLine}{matrix1}");
+        Vector vector = new([1, 2, 3]);
+        Console.WriteLine($"Результат умножения матрицы 1 вектор ({vector}):{Environment.NewLine}{matrix1.MultiplyByVector(vector)}");
     }
 }

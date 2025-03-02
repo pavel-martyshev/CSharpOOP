@@ -3,114 +3,139 @@ using VectorTask;
 
 namespace MatrixTask;
 
-class Matrix
+public class Matrix
 {
-    private Vector[] grid;
+    private Vector[] _rows;
 
-    public int RowsCount { get; private set; }
+    public int RowsCount
+    {
+        get
+        {
+            return _rows.Length;
+        }
+    }
 
-    public int ColumnsCount { get; private set; }
+    public int ColumnsCount
+    {
+        get
+        {
+            return _rows[0].Size;
+        }
+    }
 
-    public bool IsSquareMatrix { get; }
+    public bool IsSquare
+    {
+        get
+        {
+            return RowsCount == ColumnsCount;
+
+        }
+    }
 
     public Matrix(int rowsCount, int columnsCount)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(rowsCount, 0);
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(columnsCount, 0);
+        if (rowsCount <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(rowsCount), "The number of rows must be greater than 0.");
+        }
 
-        grid = new Vector[rowsCount];
+        if (columnsCount <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(columnsCount), "The number of columns must be greater than 0.");
+        }
+
+        _rows = new Vector[rowsCount];
 
         for (int i = 0; i < rowsCount; i++)
         {
-            grid[i] = new Vector(columnsCount);
+            _rows[i] = new Vector(columnsCount);
         }
-
-        RowsCount = rowsCount;
-        ColumnsCount = columnsCount;
-        IsSquareMatrix = rowsCount == columnsCount;
     }
 
     public Matrix(Matrix matrix)
     {
-        grid = new Vector[matrix.RowsCount];
+        _rows = new Vector[matrix.RowsCount];
 
         for (int i = 0; i < matrix.RowsCount; i++)
         {
-            grid[i] = new Vector(matrix.grid[i]);
+            _rows[i] = new Vector(matrix._rows[i]);
         }
-
-        RowsCount = matrix.RowsCount;
-        ColumnsCount = matrix.ColumnsCount;
-        IsSquareMatrix = matrix.RowsCount == matrix.ColumnsCount;
     }
 
     public Matrix(double[,] matrixArray)
     {
-        int rows = matrixArray.GetLength(0);
-        int columns = matrixArray.GetLength(1);
+        int rowsCount = matrixArray.GetLength(0);
+        int columnsCount = matrixArray.GetLength(1);
 
-        ArgumentOutOfRangeException.ThrowIfEqual(rows, 0);
-        ArgumentOutOfRangeException.ThrowIfEqual(columns, 0);
-
-        grid = new Vector[rows];
-
-        for (int i = 0; i < rows; i++)
+        if (rowsCount <= 0)
         {
-            double[] rowArray = new double[columns];
+            throw new ArgumentException("The number of rows must be greater than 0.", nameof(matrixArray));
+        }
 
-            for (int j = 0; j < columns; j++)
+        if (columnsCount <= 0)
+        {
+            throw new ArgumentException("The number of columns must be greater than 0.", nameof(matrixArray));
+        }
+
+        _rows = new Vector[rowsCount];
+
+        for (int i = 0; i < rowsCount; i++)
+        {
+            double[] rowArray = new double[columnsCount];
+
+            for (int j = 0; j < columnsCount; j++)
             {
                 rowArray[j] = matrixArray[i, j];
             }
 
-            grid[i] = new Vector(rowArray);
+            _rows[i] = new Vector(rowArray);
         }
-
-        RowsCount = rows;
-        ColumnsCount = columns;
-        IsSquareMatrix = rows == columns;
     }
 
     public Matrix(Vector[] vectorsArray)
     {
-        ArgumentOutOfRangeException.ThrowIfEqual(vectorsArray.Length, 0);
-
-        grid = [.. vectorsArray];
+        if (vectorsArray.Length == 0)
+        {
+            throw new ArgumentException("The array cannot be empty.", nameof(vectorsArray));
+        }
 
         int maxVectorSize = vectorsArray.Aggregate(vectorsArray[0].Size, (maxSize, vector) => Math.Max(maxSize, vector.Size));
 
-        for (int i = 0; i < grid.Length; i++)
+        _rows = new Vector[maxVectorSize];
+        Array.Copy(vectorsArray, _rows, vectorsArray.Length);
+
+        foreach (Vector row in _rows)
         {
-            if (grid[i].Size < maxVectorSize)
+            if (row.Size < maxVectorSize)
             {
-                grid[i].Add(new Vector([.. new double[maxVectorSize]]));
+                row.Add(new Vector(new double[maxVectorSize]));
             }
         }
-
-        RowsCount = vectorsArray.Length;
-        ColumnsCount = maxVectorSize;
-        IsSquareMatrix = vectorsArray.Length == maxVectorSize;
     }
 
     public Vector this[int index]
     {
         get
         {
-            ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(index, RowsCount - 1);
+            if (index < 0 || index > _rows.Length - 1)
+            {
+                throw new IndexOutOfRangeException();
+            }
 
-            return new Vector(grid[index]);
+            return new Vector(_rows[index]);
         }
         set
         {
-            ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(index, RowsCount - 1);
+            if (index < 0 || index > _rows.Length - 1)
+            {
+                throw new IndexOutOfRangeException();
+            }
 
-            grid[index] = new Vector(value);
+            _rows[index] = new Vector(value);
         }
     }
 
-    private static void EnsureSameSize(Matrix matrix1, Matrix matrix2)
+    private static void CheckSameSize(Matrix matrix1, Matrix matrix2)
     {
         if (matrix1.RowsCount != matrix2.RowsCount || matrix1.ColumnsCount != matrix2.ColumnsCount)
         {
@@ -118,9 +143,9 @@ class Matrix
         }
     }
 
-    public static Matrix GetMatricesAddition(Matrix matrix1, Matrix matrix2)
+    public static Matrix GetSum(Matrix matrix1, Matrix matrix2)
     {
-        EnsureSameSize(matrix1, matrix2);
+        CheckSameSize(matrix1, matrix2);
 
         Matrix matrix = new(matrix1);
         matrix.Add(matrix2);
@@ -128,9 +153,9 @@ class Matrix
         return matrix;
     }
 
-    public static Matrix GetMatricesSubtract(Matrix matrix1, Matrix matrix2)
+    public static Matrix GetDifference(Matrix matrix1, Matrix matrix2)
     {
-        EnsureSameSize(matrix1, matrix2);
+        CheckSameSize(matrix1, matrix2);
 
         Matrix matrix = new(matrix1);
         matrix.Subtract(matrix2);
@@ -138,37 +163,41 @@ class Matrix
         return matrix;
     }
 
-    public static Matrix GetMatricesMultiply(Matrix matrix1, Matrix matrix2)
+    public static Matrix GetProduct(Matrix matrix1, Matrix matrix2)
     {
-        ArgumentOutOfRangeException.ThrowIfNotEqual(matrix1.ColumnsCount, matrix2.RowsCount);
+        if (matrix1.ColumnsCount != matrix2.RowsCount)
+        {
+            throw new ArgumentException($"The number of columns of matrix1 must be equal to the number of rows of matrix2. ({matrix1.ColumnsCount} != {matrix2.RowsCount})");
+        }
 
-        Matrix multiplicationProduct = new(matrix1.RowsCount, matrix2.ColumnsCount);
+        Matrix product = new(matrix1.RowsCount, matrix2.ColumnsCount);
 
         for (int i = 0; i < matrix1.RowsCount; i++)
         {
             for (int j = 0; j < matrix2.ColumnsCount; j++)
             {
-                multiplicationProduct[i][j] = Vector.GetDotProduct(matrix1[i], matrix2.GetColumnByIndex(j));
+                product[i][j] = Vector.GetDotProduct(matrix1[i], matrix2.GetColumnByIndex(j));
             }
         }
 
-        return multiplicationProduct;
+        return product;
     }
 
     public Vector GetColumnByIndex(int index)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
-
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(index, ColumnsCount - 1);
+        if (index < 0 || index > _rows[0].Size - 1)
+        {
+            throw new IndexOutOfRangeException();
+        }
 
         double[] columnComponents = new double[RowsCount];
 
         for (int i = 0; i < RowsCount; i++)
         {
-            columnComponents[i] = grid[i][index];
+            columnComponents[i] = _rows[i][index];
         }
 
-        return new Vector([.. columnComponents]);
+        return new Vector(columnComponents);
     }
 
     public void Transpose()
@@ -180,20 +209,20 @@ class Matrix
             transposedMatrixGrid[i] = GetColumnByIndex(i);
         }
 
-        grid = transposedMatrixGrid;
+        _rows = transposedMatrixGrid;
     }
 
     public void MultiplyByScalar(double scalar)
     {
-        foreach (Vector vector in grid)
+        foreach (Vector row in _rows)
         {
-            vector.MultiplyByScalar(scalar);
+            row.MultiplyByScalar(scalar);
         }
     }
 
     public double GetDeterminant()
     {
-        if (!IsSquareMatrix)
+        if (!IsSquare)
         {
             throw new InvalidOperationException($"Cannot compute the determinant of a non-square matrix ({RowsCount}x{ColumnsCount}).");
         }
@@ -235,7 +264,7 @@ class Matrix
 
         for (int i = 1; i < size; i++)
         {
-            int minorColumn = 0;
+            int minorColumnIndex = 0;
 
             for (int j = 0; j < size; j++)
             {
@@ -244,61 +273,66 @@ class Matrix
                     continue;
                 }
 
-                minor[i - 1, minorColumn] = matrix[i][j];
-                minorColumn++;
+                minor[i - 1, minorColumnIndex] = matrix[i][j];
+                minorColumnIndex++;
             }
         }
 
         return new Matrix(minor);
     }
 
-    public void MultiplyByVector(Vector vector)
+    public Vector MultiplyByVector(Vector vector)
     {
-        ArgumentOutOfRangeException.ThrowIfNotEqual(vector.Size, ColumnsCount);
-
-        for (int i = 0; i < RowsCount; i++)
+        if (vector.Size != _rows[0].Size)
         {
-            for (int j = 0; j < ColumnsCount; j++)
-            {
-                grid[i][j] *= vector[j];
-            }
+            throw new ArgumentException("The size of the vector must be equal to the number of columns of the matrix.", nameof(vector));
         }
+
+        Vector newVector = new(_rows[0].Size);
+
+        for (int i = 0; i < newVector.Size; i++)
+        {
+            newVector[i] = Vector.GetDotProduct(_rows[i], vector);
+        }
+
+        return newVector;
     }
 
     public void Add(Matrix matrix)
     {
-        EnsureSameSize(this, matrix);
+        CheckSameSize(this, matrix);
 
         for (int i = 0; i < RowsCount; i++)
         {
-            grid[i].Add(matrix.grid[i]);
+            _rows[i].Add(matrix._rows[i]);
         }
     }
 
     public void Subtract(Matrix matrix)
     {
-        EnsureSameSize(this, matrix);
+        CheckSameSize(this, matrix);
 
         for (int i = 0; i < RowsCount; i++)
         {
-            grid[i].Subtract(matrix.grid[i]);
+            _rows[i].Subtract(matrix._rows[i]);
         }
     }
 
     public override string ToString()
     {
-        StringBuilder matrixString = new();
-        matrixString.Append('{');
+        StringBuilder matrixStringBuilder = new();
+        matrixStringBuilder.Append('{');
 
-        foreach (Vector vector in grid)
+        foreach (Vector row in _rows)
         {
-            matrixString.Append($"{vector}, ");
+            matrixStringBuilder.Append(row);
+            matrixStringBuilder.Append(", ");
         }
 
-        matrixString.Length -= 2;
-        matrixString.Append('}');
+        matrixStringBuilder.Length -= 2;
+        matrixStringBuilder.Append('}');
 
-        return matrixString.ToString();
+        return matrixStringBuilder.ToString();
     }
 
     public override bool Equals(object? obj)
@@ -315,14 +349,14 @@ class Matrix
 
         Matrix matrix = (Matrix)obj;
 
-        if (RowsCount != matrix.RowsCount || ColumnsCount != matrix.ColumnsCount)
+        if (_rows.Length != matrix.RowsCount || _rows[0].Size != matrix.ColumnsCount)
         {
             return false;
         }
 
-        for (int i = 0; i < RowsCount; i++)
+        for (int i = 0; i < _rows.Length; i++)
         {
-            if (!grid[i].Equals(matrix[i]))
+            if (!_rows[i].Equals(matrix._rows[i]))
             {
                 return false;
             }
@@ -336,9 +370,9 @@ class Matrix
         const int prime = 31;
         int hash = 1;
 
-        foreach (Vector vector in grid)
+        foreach (Vector row in _rows)
         {
-            hash = prime * hash + vector.GetHashCode();
+            hash = prime * hash + row.GetHashCode();
         }
 
         return hash;
