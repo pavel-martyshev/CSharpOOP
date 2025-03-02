@@ -21,12 +21,12 @@ internal class Program
 
         Console.WriteLine();
 
-        Vector vector3 = Vector.GetVectorsAddition(vector1, vector2);
+        Vector vector3 = Vector.GetSum(vector1, vector2);
         Console.WriteLine($"Результат сложения вектора 1 и вектора 2: {vector3}");
 
         Console.WriteLine();
 
-        Vector vector4 = Vector.GetVectorsSubtraction(vector2, vector1);
+        Vector vector4 = Vector.GetDifference(vector2, vector1);
         Console.WriteLine($"Результат вычитания вектора 1 из вектора 2: {vector4}");
 
         Console.WriteLine();

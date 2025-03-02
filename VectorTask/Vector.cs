@@ -2,65 +2,85 @@
 
 public class Vector
 {
-    private double[] components;
+    private double[] _components;
 
-    public int Size { get; private set; }
+    public int Size
+    {
+        get
+        {
+            return _components.Length;
+        }
+    }
 
     public Vector(int size)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(size, 0);
+        if (size <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(size), "Size must be greater than 0.");
+        }
 
-        components = [.. Enumerable.Repeat(0.0, size)];
-        Size = size;
+        _components = new double[size];
     }
 
     public Vector(Vector vector)
     {
-        components = [.. vector.components];
-        Size = components.Length;
+        _components = new double[vector.Size];
+
+        Array.Copy(vector._components, _components, vector.Size);
     }
 
     public Vector(double[] components)
     {
-        ArgumentOutOfRangeException.ThrowIfEqual(components.Length, 0);
+        if (components.Length == 0)
+        {
+            throw new ArgumentException("The array cannot be empty.", nameof(components));
+        }
 
-        this.components = [.. components];
-        Size = this.components.Length;
+        _components = new double[components.Length];
+
+        Array.Copy(components, _components, components.Length);
     }
 
     public Vector(int size, double[] components)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(size, 0);
+        if (size <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(size), "Size must be greater than 0.");
+        }
 
-        ArgumentOutOfRangeException.ThrowIfLessThan(size, components.Length);
+        if (components.Length == 0)
+        {
+            throw new ArgumentException("The array cannot be empty.", nameof(components));
+        }
 
-        this.components = new double[size];
-        Size = size;
+        _components = new double[size];
 
-        Array.Copy(components, 0, this.components, 0, components.Length);
+        Array.Copy(components, 0, _components, 0, components.Length);
     }
 
     public double this[int index]
     {
         get
         {
-            ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+            if (index < 0 || _components.Length < index)
+            {
+                throw new IndexOutOfRangeException();
+            }
 
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(index, Size - 1);
-
-            return components[index];
+            return _components[index];
         }
         set
         {
-            ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+            if (index < 0 || _components.Length < index)
+            {
+                throw new IndexOutOfRangeException();
+            }
 
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(index, Size - 1);
-
-            components[index] = value;
+            _components[index] = value;
         }
     }
 
-    public static Vector GetVectorsAddition(Vector vector1, Vector vector2)
+    public static Vector GetSum(Vector vector1, Vector vector2)
     {
         Vector resultVector = new(vector1);
         resultVector.Add(vector2);
@@ -68,7 +88,7 @@ public class Vector
         return resultVector;
     }
 
-    public static Vector GetVectorsSubtraction(Vector vector1, Vector vector2)
+    public static Vector GetDifference(Vector vector1, Vector vector2)
     {
         Vector resultVector = new(vector1);
         resultVector.Subtract(vector2);
@@ -78,65 +98,57 @@ public class Vector
 
     public static double GetDotProduct(Vector vector1, Vector vector2)
     {
-        int smallestComponentsSize = Math.Min(vector1.Size, vector2.Size);
+        int minComponentsSize = Math.Min(vector1.Size, vector2.Size);
+
         double dotProduct = 0;
 
-        for (int i = 0; i < smallestComponentsSize; i++)
+        for (int i = 0; i < minComponentsSize; i++)
         {
-            dotProduct += vector1.components[i] * vector2.components[i];
+            dotProduct += vector1._components[i] * vector2._components[i];
         }
 
         return dotProduct;
     }
 
-    private void ExpandComponents(int size)
-    {
-        double[] temp = new double[size];
-        Array.Copy(components, 0, temp, 0, Size);
-
-        components = temp;
-        Size = components.Length;
-    }
-
     public void Add(Vector vector)
     {
-        if (Size < vector.Size)
+        if (_components.Length < vector.Size)
         {
-            ExpandComponents(vector.Size);
+            Array.Resize(ref _components, vector.Size);
         }
 
         for (int i = 0; i < vector.Size; i++)
         {
-            components[i] += vector.components[i];
+            _components[i] += vector._components[i];
         }
     }
 
     public void Subtract(Vector vector)
     {
-        if (Size < vector.Size)
+        if (_components.Length < vector.Size)
         {
-            ExpandComponents(vector.Size);
+            Array.Resize(ref _components, vector.Size);
         }
 
         for (int i = 0; i < vector.Size; i++)
         {
-            components[i] -= vector.components[i];
+            _components[i] -= vector._components[i];
         }
     }
 
     public void MultiplyByScalar(double scalar)
     {
-        for (int i = 0; i < Size; i++)
+        for (int i = 0; i < _components.Length; i++)
         {
-            components[i] *= scalar;
+            _components[i] *= scalar;
         }
     }
 
     public void Reverse() => MultiplyByScalar(-1);
 
-    public double GetLength() => Math.Sqrt(components.Select(component => component * component).Sum());
+    public double GetLength() => Math.Sqrt(_components.Sum(component => component * component));
 
-    public override string ToString() => $"{{{string.Join(", ", components)}}}";
+    public override string ToString() => $"{{{string.Join(", ", _components)}}}";
 
     public override bool Equals(object? obj)
     {
@@ -152,14 +164,14 @@ public class Vector
 
         Vector vector = (Vector)obj;
 
-        if (Size != vector.Size)
+        if (_components.Length != vector.Size)
         {
             return false;
         }
 
-        for (int i = 0; i < Size; i++)
+        for (int i = 0; i < _components.Length; i++)
         {
-            if (components[i] != vector.components[i])
+            if (_components[i] != vector._components[i])
             {
                 return false;
             }
@@ -173,7 +185,7 @@ public class Vector
         const int prime = 31;
         int hash = 1;
 
-        foreach (double component in components)
+        foreach (double component in _components)
         {
             hash = prime * hash + component.GetHashCode();
         }
