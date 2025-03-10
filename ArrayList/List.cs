@@ -61,7 +61,7 @@ public class List<T> : IList<T>
         {
             if (index < 0 || index >= Count)
             {
-                throw new IndexOutOfRangeException();
+                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than the length of the list ({Count}).");
             }
 
             return _items[index];
@@ -70,7 +70,7 @@ public class List<T> : IList<T>
         {
             if (index < 0 || index > Count)
             {
-                throw new IndexOutOfRangeException();
+                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than or equal to the length of the list ({Count}).");
             }
 
             if (index == Count)
