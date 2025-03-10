@@ -23,13 +23,7 @@ public class List<T> : IList<T>
         }
     }
 
-    public bool IsReadOnly
-    {
-        get
-        {
-            return false;
-        }
-    }
+    public bool IsReadOnly => false;
 
     public List()
     {
