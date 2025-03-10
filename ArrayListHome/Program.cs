@@ -1,40 +1,25 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace ArrayListHome;
+﻿namespace ArrayListHome;
 
 internal class Program
 {
-    public static void ReadingFile()
+    public static List<string> GetFileLineAsList(string filePath)
     {
-        string filePath = Path.Combine("..", "..", "..", "someFile.txt");
+        using StreamReader reader = new(filePath);
+        string? line = reader.ReadLine();
 
         List<string> fileLines = [];
 
-        try
+        while (line is not null)
         {
-            using (StreamReader reader = new(filePath))
-            {
-                string line = reader.ReadLine()!;
-
-                while (line is not null)
-                {
-                    fileLines.Add(reader.ReadLine()!);
-                    line = reader.ReadLine()!;
-                }
-            }
-
-            Console.WriteLine(string.Join(Environment.NewLine, fileLines));
+            fileLines.Add(line);
+            line = reader.ReadLine()!;
         }
-        catch (FileNotFoundException)
-        {
-            Console.WriteLine($"Файл не найден ({filePath})");
-        }
+
+        return fileLines;
     }
-    
-    public static void RemoveEvenNumbers()
-    {
-        List<int> numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
+    public static List<int> RemoveEvenNumbers(List<int> numbers)
+    {
         for (int i = numbers.Count - 1; i >= 0; i--)
         {
             if (numbers[i] % 2 == 0)
@@ -43,12 +28,11 @@ internal class Program
             }
         }
 
-        Console.WriteLine(string.Join(Environment.NewLine, numbers));
+        return numbers;
     }
 
-    public static void ExtractUniqueElements()
+    public static List<int> ExtractUniqueElements(List<int> numbers)
     {
-        List<int> numbers = [1, 5, 2, 1, 3, 5];
         List<int> uniqueNumbers = new(numbers.Count);
 
         foreach (int number in numbers)
@@ -59,19 +43,28 @@ internal class Program
             }
         }
 
-        Console.WriteLine(string.Join(Environment.NewLine, uniqueNumbers));
+        return uniqueNumbers;
     }
 
     static void Main(string[] args)
     {
-        ReadingFile();
+        string filePath = Path.Combine("..", "..", "..", "someFile.txt");
+
+        try
+        {
+            Console.WriteLine(string.Join(Environment.NewLine, GetFileLineAsList(filePath)));
+        }
+        catch (FileNotFoundException)
+        {
+            Console.WriteLine($"Файл не найден ({filePath})");
+        }
 
         Console.WriteLine();
 
-        RemoveEvenNumbers();
+        Console.WriteLine(string.Join(Environment.NewLine, RemoveEvenNumbers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])));
 
         Console.WriteLine();
 
-        ExtractUniqueElements();
+        Console.WriteLine(string.Join(Environment.NewLine, ExtractUniqueElements([1, 5, 2, 1, 3, 5])));
     }
 }
