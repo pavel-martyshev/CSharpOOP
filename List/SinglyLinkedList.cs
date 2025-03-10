@@ -20,18 +20,19 @@ class SinglyLinkedList<T>
         {
             if (index < 0 || index >= Count)
             {
-                throw new IndexOutOfRangeException();
+                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than the length of the list ({Count}).");
             }
 
             return GetNodeByIndex(index).Value;
         }
+
         set
         {
             ArgumentNullException.ThrowIfNull(value, nameof(value));
 
             if (index < 0 || index > Count)
             {
-                throw new IndexOutOfRangeException();
+                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than or equal to the length of the list ({Count}).");
             }
 
             if (Count == 0)
