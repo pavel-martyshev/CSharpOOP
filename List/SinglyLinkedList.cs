@@ -229,19 +229,18 @@ class SinglyLinkedList<T>
 
     public override string ToString()
     {
-        StringBuilder listStringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
 
         for (ListNode<T> node = _head; node != null; node = node.Next)
         {
-            listStringBuilder.Append(node.Value);
-            listStringBuilder.Append(", ");
+            stringBuilder.Append(node.Value).Append(", ");
         }
 
-        if (listStringBuilder.Length > 0)
+        if (stringBuilder.Length > 0)
         {
-            listStringBuilder.Length -= 2;
+            stringBuilder.Length -= 2;
         }
 
-        return listStringBuilder.ToString();
+        return stringBuilder.ToString();
     }
 }
