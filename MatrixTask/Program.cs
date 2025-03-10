@@ -47,8 +47,7 @@ internal class Program
 
         try
         {
-            double determinant = matrix1.GetDeterminant();
-            Console.WriteLine($"{Environment.NewLine}Определитель матрицы 1: {determinant}");
+            Console.WriteLine($"{Environment.NewLine}Определитель матрицы 1: {matrix1.GetDeterminant()}");
         }
         catch (InvalidOperationException e)
         {
