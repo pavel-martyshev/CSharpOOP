@@ -4,13 +4,7 @@ public class Vector
 {
     private double[] _components;
 
-    public int Size
-    {
-        get
-        {
-            return _components.Length;
-        }
-    }
+    public int Size => _components.Length;
 
     public Vector(int size)
     {
@@ -43,17 +37,19 @@ public class Vector
 
     public Vector(int size, double[] components)
     {
-        if (size <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(size), "Size must be greater than 0.");
-        }
-
         if (components.Length == 0)
         {
             throw new ArgumentException("The array cannot be empty.", nameof(components));
         }
 
-        _components = new double[size];
+        if (size > components.Length)
+        {
+            _components = new double[size];
+        }
+        else
+        {
+            _components = new double[components.Length];
+        }
 
         Array.Copy(components, 0, _components, 0, components.Length);
     }
@@ -62,18 +58,19 @@ public class Vector
     {
         get
         {
-            if (index < 0 || _components.Length < index)
+            if (index < 0 || index >= _components.Length)
             {
-                throw new IndexOutOfRangeException();
+                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than the length ({_components.Length}).");
             }
 
             return _components[index];
         }
+
         set
         {
-            if (index < 0 || _components.Length < index)
+            if (index < 0 || index > _components.Length)
             {
-                throw new IndexOutOfRangeException();
+                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than or equal to the length ({_components.Length}).");
             }
 
             _components[index] = value;
@@ -98,11 +95,11 @@ public class Vector
 
     public static double GetDotProduct(Vector vector1, Vector vector2)
     {
-        int minComponentsSize = Math.Min(vector1.Size, vector2.Size);
+        int minSize = Math.Min(vector1.Size, vector2.Size);
 
         double dotProduct = 0;
 
-        for (int i = 0; i < minComponentsSize; i++)
+        for (int i = 0; i < minSize; i++)
         {
             dotProduct += vector1._components[i] * vector2._components[i];
         }
