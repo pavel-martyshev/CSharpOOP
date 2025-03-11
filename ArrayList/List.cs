@@ -185,7 +185,7 @@ public class List<T> : IList<T>
     {
         if (arrayIndex < 0 || arrayIndex >= array.Length)
         {
-            throw new IndexOutOfRangeException();
+            throw new IndexOutOfRangeException($"The index must be greater 0 and less than the length of the array ({array.Length}).");
         }
 
         for (int i = 0; i < Count; i++)
