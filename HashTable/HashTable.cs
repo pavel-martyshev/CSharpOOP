@@ -8,6 +8,14 @@ class HashTable<T> : ICollection<T>
 
     public int Count { get; private set; }
 
+    private int Capacity
+    {
+        set
+        {
+            Array.Resize(ref _buckets, value);
+        }
+    }
+
     public bool IsReadOnly => false;
 
     public HashTable()
@@ -50,18 +58,23 @@ class HashTable<T> : ICollection<T>
                 throw new IndexOutOfRangeException($"The index must be greater than 0 and less than or equal to the length of the list ({_buckets.Length}).");
             }
 
+            if (Count >= _buckets.Length)
+            {
+                ExpandAndRehash();
+            }
+
             if (value is not null)
             {
-                List<T>? list = _buckets[hashIndex];
+                List<T>? values = _buckets[hashIndex];
 
-                if (list is null)
+                if (values is null)
                 {
                     _buckets[hashIndex] = value;
                     Count++;
                 }
-                else if (!list.Equals(value))
+                else if (!values.Equals(value))
                 {
-                    list.AddRange(value);
+                    values.AddRange(value);
                     Count++;
                 }
             }
@@ -75,19 +88,50 @@ class HashTable<T> : ICollection<T>
 
     private int GetHashIndex(int hash) => Math.Abs(hash % _buckets.Length);
 
+    private void ExpandAndRehash()
+    {
+        int oldLength = _buckets.Length;
+        Capacity = _buckets.Length * 2;
+
+        for (int i = 0; i < oldLength; i++)
+        {
+            List<T>? values = _buckets[i];
+
+            if (values is null || values.Count <= 1)
+            {
+                continue;
+            }
+
+            foreach (T value in values)
+            {
+                int newHashIndex = GetHashIndex(value!.GetHashCode());
+
+                if (newHashIndex != i)
+                {
+                    _buckets[newHashIndex] = [value];
+                }
+            }
+        }
+    }
+
     public void Add(T item)
     {
         ArgumentNullException.ThrowIfNull(item, nameof(item));
 
+        if (Count >= _buckets.Length)
+        {
+            ExpandAndRehash();
+        }
+
         int hashIndex = GetHashIndex(item.GetHashCode());
 
-        List<T>? list = _buckets[hashIndex];
+        List<T>? values = _buckets[hashIndex];
 
-        if (list is not null)
+        if (values is not null)
         {
-            if (!list.Contains(item))
+            if (!values.Contains(item))
             {
-                list.Add(item);
+                values.Add(item);
                 Count++;
             }
         }
@@ -108,14 +152,14 @@ class HashTable<T> : ICollection<T>
     {
         ArgumentNullException.ThrowIfNull(item, nameof(item));
 
-        List<T>? list = _buckets[GetHashIndex(item.GetHashCode())];
+        List<T>? values = _buckets[GetHashIndex(item.GetHashCode())];
 
-        if (list is null)
+        if (values is null)
         {
             return false;
         }
 
-        return list.Contains(item);
+        return values.Contains(item);
     }
 
     public void CopyTo(T[] array, int arrayIndex)
@@ -136,14 +180,14 @@ class HashTable<T> : ICollection<T>
         ArgumentNullException.ThrowIfNull(item, nameof(item));
 
         int hashIndex = GetHashIndex(item.GetHashCode());
-        List<T>? list = _buckets[hashIndex];
+        List<T>? values = _buckets[hashIndex];
 
-        if (list is null)
+        if (values is null)
         {
             return false;
         }
 
-        bool isDeleted = list.Remove(item);
+        bool isDeleted = values.Remove(item);
 
         if (isDeleted == true)
         {
@@ -158,11 +202,11 @@ class HashTable<T> : ICollection<T>
     {
         for (int i = 0; i < _buckets.Length; ++i)
         {
-            List<T>? list = _buckets[i];
+            List<T>? values = _buckets[i];
 
-            if (list is not null)
+            if (values is not null)
             {
-                List<T>.Enumerator enumerator = list.GetEnumerator();
+                List<T>.Enumerator enumerator = values.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
