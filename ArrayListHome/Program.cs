@@ -2,7 +2,7 @@
 
 internal class Program
 {
-    public static List<string> GetFileLineAsList(string filePath)
+    public static List<string> GetFileLinesAsList(string filePath)
     {
         using StreamReader reader = new(filePath);
         string? line = reader.ReadLine();
@@ -18,8 +18,13 @@ internal class Program
         return fileLines;
     }
 
-    public static List<int> RemoveEvenNumbers(List<int> numbers)
+    public static void RemoveEvenNumbers(List<int> numbers)
     {
+        if (numbers.Count == 0)
+        {
+            throw new ArgumentException("Список не должен быть пустым.", nameof(numbers));
+        }
+
         for (int i = numbers.Count - 1; i >= 0; i--)
         {
             if (numbers[i] % 2 == 0)
@@ -27,23 +32,26 @@ internal class Program
                 numbers.RemoveAt(i);
             }
         }
-
-        return numbers;
     }
 
-    public static List<int> ExtractUniqueElements(List<int> numbers)
+    public static List<T> GetUniqueElements<T>(List<T> list)
     {
-        List<int> uniqueNumbers = new(numbers.Count);
-
-        foreach (int number in numbers)
+        if (list.Count == 0)
         {
-            if (!uniqueNumbers.Contains(number))
+            throw new ArgumentException("Список не должен быть пустым.", nameof(list));
+        }
+
+        List<T> uniqueElements = new(list.Count);
+
+        foreach (T element in list)
+        {
+            if (!uniqueElements.Contains(element))
             {
-                uniqueNumbers.Add(number);
+                uniqueElements.Add(element);
             }
         }
 
-        return uniqueNumbers;
+        return uniqueElements;
     }
 
     static void Main(string[] args)
@@ -52,19 +60,41 @@ internal class Program
 
         try
         {
-            Console.WriteLine(string.Join(Environment.NewLine, GetFileLineAsList(filePath)));
+            Console.WriteLine(string.Join(Environment.NewLine, GetFileLinesAsList(filePath)));
         }
-        catch (FileNotFoundException)
+        catch (Exception e) when (e is FileNotFoundException || e is DirectoryNotFoundException)
         {
             Console.WriteLine($"Файл не найден ({filePath})");
         }
+        catch (UnauthorizedAccessException)
+        {
+            Console.WriteLine($"Нет прав для чтения файла ({filePath})");
+        }
 
         Console.WriteLine();
 
-        Console.WriteLine(string.Join(Environment.NewLine, RemoveEvenNumbers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])));
+        List<int> numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+        try
+        {
+            RemoveEvenNumbers(numbers);
+        }
+        catch (ArgumentException e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        Console.WriteLine(string.Join(Environment.NewLine, numbers));
 
         Console.WriteLine();
 
-        Console.WriteLine(string.Join(Environment.NewLine, ExtractUniqueElements([1, 5, 2, 1, 3, 5])));
+        try
+        {
+            Console.WriteLine(string.Join(Environment.NewLine, GetUniqueElements([1, 5, 2, 1, 3, 5])));
+        }
+        catch (ArgumentException e)
+        {
+            Console.WriteLine(e.Message);
+        }
     }
 }
