@@ -91,7 +91,7 @@ public class Matrix
 
             if (newVector.Size < maxVectorSize)
             {
-                newVector.Add(new Vector(new double[maxVectorSize]));
+                newVector.Add(new Vector(maxVectorSize));
             }
 
             _rows[i] = newVector;
@@ -104,7 +104,7 @@ public class Matrix
         {
             if (index < 0 || index >= _rows.Length)
             {
-                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than the length ({_rows.Length}).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the length ({_rows.Length}).");
             }
 
             return new Vector(_rows[index]);
@@ -112,14 +112,14 @@ public class Matrix
 
         set
         {
-            if (index < 0 || index > _rows.Length)
+            if (index < 0 || index >= _rows.Length)
             {
-                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than or equal to the length ({_rows.Length}).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the length ({_rows.Length}).");
             }
 
-            if (value.Size == 0)
+            if (value.Size != ColumnsCount)
             {
-                throw new ArgumentException("The vector size must be greater than 0.", nameof(value));
+                throw new ArgumentException($"The vector size ({value.Size}) must be equal to {ColumnsCount}.", nameof(value));
             }
 
             _rows[index] = new Vector(value);
@@ -130,7 +130,7 @@ public class Matrix
     {
         if (matrix1.RowsCount != matrix2.RowsCount || matrix1.ColumnsCount != matrix2.ColumnsCount)
         {
-            throw new InvalidOperationException($"The matrices must be the same size ({matrix1.RowsCount}x{matrix1.ColumnsCount} | {matrix2.RowsCount}x{matrix2.ColumnsCount}).");
+            throw new ArgumentException($"The matrices must be the same size. (matrix1 - {matrix1.RowsCount}x{matrix1.ColumnsCount}, matrix2 - {matrix2.RowsCount}x{matrix2.ColumnsCount}).");
         }
     }
 
@@ -158,7 +158,7 @@ public class Matrix
     {
         if (matrix1.ColumnsCount != matrix2.RowsCount)
         {
-            throw new InvalidOperationException($"The number of columns of matrix1 must be equal to the number of rows of matrix2. ({matrix1.ColumnsCount} != {matrix2.RowsCount})");
+            throw new ArgumentException($"The number of columns of matrix1 ({matrix1.ColumnsCount}) must be equal to the number of rows of matrix2 ({matrix2.RowsCount}).");
         }
 
         Matrix product = new(matrix1.RowsCount, matrix2.ColumnsCount);
@@ -178,7 +178,7 @@ public class Matrix
     {
         if (index < 0 || index >= ColumnsCount)
         {
-            throw new IndexOutOfRangeException($"The index must be greater than 0 and less than the columns count ({ColumnsCount}).");
+            throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the columns count ({ColumnsCount}).");
         }
 
         double[] columnComponents = new double[RowsCount];
@@ -193,14 +193,14 @@ public class Matrix
 
     public void Transpose()
     {
-        Vector[] transposedStrings = new Vector[ColumnsCount];
+        Vector[] transposedRows = new Vector[ColumnsCount];
 
         for (int i = 0; i < ColumnsCount; i++)
         {
-            transposedStrings[i] = GetColumnByIndex(i);
+            transposedRows[i] = GetColumnByIndex(i);
         }
 
-        _rows = transposedStrings;
+        _rows = transposedRows;
     }
 
     public void MultiplyByScalar(double scalar)
@@ -276,17 +276,17 @@ public class Matrix
     {
         if (vector.Size != ColumnsCount)
         {
-            throw new ArgumentException("The size of the vector must be equal to the number of columns of the matrix.", nameof(vector));
+            throw new ArgumentException($"The size ({vector.Size}) of the vector must be equal to the number of columns of the matrix.", nameof(vector));
         }
 
-        Vector resultingVector = new(RowsCount);
+        Vector resultVector = new(RowsCount);
 
-        for (int i = 0; i < resultingVector.Size; i++)
+        for (int i = 0; i < resultVector.Size; i++)
         {
-            resultingVector[i] = Vector.GetDotProduct(_rows[i], vector);
+            resultVector[i] = Vector.GetDotProduct(_rows[i], vector);
         }
 
-        return resultingVector;
+        return resultVector;
     }
 
     public void Add(Matrix matrix)
