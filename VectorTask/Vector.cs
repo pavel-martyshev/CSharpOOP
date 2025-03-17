@@ -10,7 +10,7 @@ public class Vector
     {
         if (size <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(size), "Size must be greater than 0.");
+            throw new ArgumentOutOfRangeException(nameof(size), $"Size ({size}) must be greater than 0.");
         }
 
         _components = new double[size];
@@ -37,21 +37,14 @@ public class Vector
 
     public Vector(int size, double[] components)
     {
-        if (components.Length == 0)
+        if (size < 0)
         {
-            throw new ArgumentException("The array cannot be empty.", nameof(components));
+            throw new ArgumentException($"Size ({size}) must be greater than 0", nameof(size));
         }
 
-        if (size > components.Length)
-        {
-            _components = new double[size];
-        }
-        else
-        {
-            _components = new double[components.Length];
-        }
+        _components = new double[size];
 
-        Array.Copy(components, 0, _components, 0, components.Length);
+        Array.Copy(components, _components, _components.Length);
     }
 
     public double this[int index]
@@ -60,7 +53,7 @@ public class Vector
         {
             if (index < 0 || index >= _components.Length)
             {
-                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than the length ({_components.Length}).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be greater than or equal to 0 and less than the length ({_components.Length}).");
             }
 
             return _components[index];
@@ -68,9 +61,9 @@ public class Vector
 
         set
         {
-            if (index < 0 || index > _components.Length)
+            if (index < 0 || index >= _components.Length)
             {
-                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than or equal to the length ({_components.Length}).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be greater than or equal to 0 and less than the length ({_components.Length}).");
             }
 
             _components[index] = value;
