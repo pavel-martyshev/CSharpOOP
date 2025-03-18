@@ -2,17 +2,11 @@
 
 namespace List;
 
-class SinglyLinkedList<T>
+public class SinglyLinkedList<T>
 {
     private ListNode<T>? _head;
 
     public int Count { get; private set; }
-
-    public SinglyLinkedList()
-    {
-        _head = null;
-        Count = 0;
-    }
 
     public T this[int index]
     {
@@ -20,7 +14,7 @@ class SinglyLinkedList<T>
         {
             if (index < 0 || index >= Count)
             {
-                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than the length of the list ({Count}).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be between 0 and {Count - 1} (inclusive).");
             }
 
             return GetNodeByIndex(index).Value;
@@ -28,27 +22,12 @@ class SinglyLinkedList<T>
 
         set
         {
-            ArgumentNullException.ThrowIfNull(value, nameof(value));
-
-            if (index < 0 || index > Count)
+            if (index < 0 || index >= Count)
             {
-                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than or equal to the length of the list ({Count}).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be between 0 and {Count - 1} (inclusive).");
             }
 
-            if (Count == 0)
-            {
-                AddFirst(value);
-            }
-
-            if (index == Count)
-            {
-                GetNodeByIndex(index - 1).Next = new ListNode<T>(value);
-                Count++;
-            }
-            else
-            {
-                GetNodeByIndex(index).Value = value;
-            }
+            GetNodeByIndex(index).Value = value;
         }
     }
 
@@ -78,48 +57,39 @@ class SinglyLinkedList<T>
     {
         if (index < 0 || index >= Count)
         {
-            throw new IndexOutOfRangeException();
+            throw new IndexOutOfRangeException($"The index ({index}) must be between 0 and {Count - 1} (inclusive).");
         }
 
-        ListNode<T> node;
-
-        if (index != 0)
+        if (index == 0)
         {
-            ListNode<T> previousNode = GetNodeByIndex(index - 1);
-
-            node = previousNode.Next!;
-            previousNode.Next = node.Next;
-        }
-        else
-        {
-            node = _head!;
-            _head = _head.Next;
+            return RemoveFirst();
         }
 
+        ListNode<T> previousNode = GetNodeByIndex(index - 1);
+        ListNode<T>? node = previousNode.Next!;
+
+        previousNode.Next = node.Next;
         Count--;
+
         return node!.Value;
     }
 
     public bool RemoveByValue(T value)
     {
-        ArgumentNullException.ThrowIfNull(value, nameof(value));
-
         if (Count == 0)
         {
-            throw new InvalidOperationException("List is empty.");
+            return false;
         }
 
-        if (value.Equals(_head!.Value))
+        if (value!.Equals(_head!.Value))
         {
-            _head = _head.Next;
-            Count--;
-
+            RemoveFirst();
             return true;
         }
 
         ListNode<T> previousNode = _head;
 
-        for (ListNode<T> node = _head.Next!; node != null; node = node.Next!)
+        for (ListNode<T>? node = _head.Next!; node != null; node = node.Next!)
         {
             if (node.Value!.Equals(value))
             {
@@ -151,12 +121,7 @@ class SinglyLinkedList<T>
 
     public void AddFirst(T value)
     {
-        ListNode<T> newNode = new(value)
-        {
-            Next = _head
-        };
-
-        _head = newNode;
+        _head = new(value, _head);
         Count++;
     }
 
@@ -164,82 +129,83 @@ class SinglyLinkedList<T>
     {
         if (index < 0 || index > Count)
         {
-            throw new IndexOutOfRangeException();
+            throw new IndexOutOfRangeException($"The index ({index}) must be between 0 and {Count} (inclusive).");
         }
 
         if (index == 0)
         {
             AddFirst(value);
+            return;
         }
-        else
-        {
-            ListNode<T> previousNode = GetNodeByIndex(index - 1);
-            ListNode<T> newNode = new(value);
 
-            if (index != Count)
-            {
-                newNode.Next = previousNode.Next;
-            }
+        ListNode<T> previousNode = GetNodeByIndex(index - 1);
+        ListNode<T> newNode = new(value, previousNode.Next);
 
-            previousNode.Next = newNode;
-
-            Count++;
-        }
+        previousNode.Next = newNode;
+        Count++;
     }
 
     public void Reverse()
     {
-        if (Count > 1)
+        ListNode<T>? previousNode = null;
+        ListNode<T>? currentNode = _head!;
+
+        while (currentNode != null)
         {
-            ListNode<T>? previousNode = null;
-            ListNode<T> currentNode = _head!;
+            ListNode<T>? nextNode = currentNode.Next!;
+            currentNode.Next = previousNode;
 
-            while (currentNode != null)
-            {
-                ListNode<T> nextNode = currentNode.Next!;
-                currentNode.Next = previousNode;
-
-                previousNode = currentNode;
-                currentNode = nextNode!;
-            }
-
-            _head = previousNode!;
+            previousNode = currentNode;
+            currentNode = nextNode!;
         }
+
+        _head = previousNode!;
     }
 
     public SinglyLinkedList<T> Copy()
     {
         SinglyLinkedList<T> listCopy = new();
 
-        if (Count == 1)
+        if (Count == 0)
         {
-            listCopy.AddFirst(_head!.Value);
+            return listCopy;
         }
 
-        if (Count > 1)
+        listCopy._head = new(_head!.Value);
+
+        ListNode<T>? previousCopyNode = listCopy._head;
+        ListNode<T>? currentNode = _head.Next;
+
+        while (currentNode != null)
         {
-            for (int i = 0; i < Count; i++)
-            {
-                listCopy[i] = this[i];
-            }
+            ListNode<T> newNode = new(currentNode.Value);
+            previousCopyNode.Next = newNode;
+
+            previousCopyNode = newNode;
+            currentNode = currentNode.Next;
         }
 
+        listCopy.Count = Count;
         return listCopy;
     }
 
     public override string ToString()
     {
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new();
 
-        for (ListNode<T> node = _head; node != null; node = node.Next)
+        stringBuilder.Append('[');
+
+        for (ListNode<T>? node = _head; node != null; node = node.Next)
         {
             stringBuilder.Append(node.Value).Append(", ");
         }
 
-        if (stringBuilder.Length > 0)
+        if (stringBuilder.Length > 1 & stringBuilder.Length > 0)
         {
             stringBuilder.Length -= 2;
         }
+
+        stringBuilder.Append(']');
 
         return stringBuilder.ToString();
     }
