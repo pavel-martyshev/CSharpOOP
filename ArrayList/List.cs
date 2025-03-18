@@ -1,10 +1,11 @@
 ﻿using System.Collections;
+using System.Text;
 
 namespace ArrayList;
 
 public class List<T> : IList<T>
 {
-    private T[] _items = new T[10];
+    private T[] _items;
 
     private int _modCount;
 
@@ -12,11 +13,16 @@ public class List<T> : IList<T>
 
     private int Capacity
     {
+        get
+        {
+            return _items.Length;
+        }
+
         set
         {
             if (value < Count)
             {
-                throw new ArgumentException("The capacity cannot be less than the elements count.", nameof(value));
+                throw new ArgumentException($"The capacity cannot be less than the elements count ({Count}).", nameof(value));
             }
 
             Array.Resize(ref _items, value);
@@ -27,8 +33,7 @@ public class List<T> : IList<T>
 
     public List()
     {
-        Count = 0;
-        _modCount = 0;
+        _items = new T[10];
     }
 
     public List(int capacity)
@@ -38,21 +43,15 @@ public class List<T> : IList<T>
             throw new ArgumentOutOfRangeException(nameof(capacity), "The capacity must not be less than 0.");
         }
 
-        Capacity = capacity;
-        Count = 0;
-        _modCount = 0;
+        _items = new T[capacity];
     }
 
     public List(T[] items)
     {
-        if (items.Length > _items.Length)
-        {
-            Capacity = _items.Length * 2;
-        }
-
+        _items = new T[items.Length];
         Array.Copy(items, _items, items.Length);
+
         Count = items.Length;
-        _modCount = 0;
     }
 
     public T this[int index]
@@ -61,21 +60,16 @@ public class List<T> : IList<T>
         {
             if (index < 0 || index >= Count)
             {
-                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than the length of the list ({Count}).");
+                throw new ArgumentOutOfRangeException(nameof(index), $"The index ({index}) must be greater than 0 and less than the length ({Count}).");
             }
 
             return _items[index];
         }
         set
         {
-            if (index < 0 || index > Count)
+            if (index < 0 || index >= Count)
             {
-                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than or equal to the length of the list ({Count}).");
-            }
-
-            if (index == Count)
-            {
-                Count++;
+                throw new ArgumentOutOfRangeException(nameof(index), $"The index ({index}) must be greater than 0 and less than the length ({Count}).");
             }
 
             _items[index] = value;
@@ -85,7 +79,7 @@ public class List<T> : IList<T>
 
     public void TrimExcess()
     {
-        if (Count / _items.Length * 100 <= 10)
+        if ((double)Count / _items.Length * 100 <= 10)
         {
             Capacity = Count;
         }
@@ -93,11 +87,9 @@ public class List<T> : IList<T>
 
     public int IndexOf(T item)
     {
-        ArgumentNullException.ThrowIfNull(item, nameof(item));
-
         for (int i = 0; i < Count; i++)
         {
-            if (item!.Equals(_items[i]))
+            if (item.Equals(_items[i]))
             {
                 return i;
             }
@@ -108,26 +100,20 @@ public class List<T> : IList<T>
 
     public void Insert(int index, T item)
     {
-        ArgumentNullException.ThrowIfNull(item, nameof(item));
-
         if (index < 0 || index > Count)
         {
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(index), $"The index ({index}) must be greater than 0 and less than or equal to the length ({Count}).");
         }
+
+        if (Count >= _items.Length)
+        {
+            Capacity *= 2;
+        }
+
+        Array.Copy(_items, index, _items, index + 1, Count - index);
+        _items[index] = item;
 
         Count++;
-
-        if (Count > _items.Length)
-        {
-            Capacity = _items.Length * 2;
-        }
-
-        for (int i = Count; i > index; i--)
-        {
-            _items[i] = _items[i - 1];
-        }
-
-        _items[index] = item;
         _modCount++;
     }
 
@@ -135,23 +121,21 @@ public class List<T> : IList<T>
     {
         if (index < 0 || index >= Count)
         {
-            throw new IndexOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(index), $"The index ({index}) must be greater than 0 and less than the length ({Count}).");
         }
 
         Array.Copy(_items, index + 1, _items, index, Count - index - 1);
 
-        _items[Count - 1] = default;
+        _items[Count - 1] = default!;
         Count--;
         _modCount++;
     }
 
     public void Add(T item)
     {
-        ArgumentNullException.ThrowIfNull(item, nameof(item));
-
         if (Count >= _items.Length)
         {
-            Capacity = _items.Length * 2;
+            Capacity *= 2;
         }
 
         _items[Count] = item;
@@ -161,43 +145,48 @@ public class List<T> : IList<T>
 
     public void Clear()
     {
-        _items = new T[10];
+        if (Count == 0)
+        {
+            return;
+        }
+
+        Array.Clear(_items, 0, Count);
         Count = 0;
-        _modCount = 0;
     }
 
     public bool Contains(T item)
     {
-        ArgumentNullException.ThrowIfNull(item, nameof(item));
-
-        foreach (T internalItem in _items)
+        if (IndexOf(item) == -1)
         {
-            if (item.Equals(internalItem))
-            {
-                return true;
-            }
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public void CopyTo(T[] array, int arrayIndex)
     {
-        if (arrayIndex < 0 || arrayIndex >= array.Length)
+        if (arrayIndex < 0)
         {
-            throw new IndexOutOfRangeException($"The index must be greater 0 and less than the length of the array ({array.Length}).");
+            throw new ArgumentOutOfRangeException(nameof(arrayIndex), $"The index ({arrayIndex}) must be greater 0.");
         }
 
-        for (int i = 0; i < Count; i++)
+        if (array.Length - arrayIndex < Count)
         {
-            array.SetValue(_items[i], arrayIndex++);
+            throw new ArgumentException($"The number of elements in the source list ({Count}) must be less than or equal to available space from arrayIndex ({arrayIndex}) to the end of the destination array ({array.Length}).");
+        }
+
+        int arrayIndexCopy = arrayIndex;
+
+        foreach (T item in this)
+        {
+            array[arrayIndexCopy] = item;
+            arrayIndexCopy++;
         }
     }
 
     public bool Remove(T item)
     {
-        ArgumentNullException.ThrowIfNull(item, nameof(item));
-
         int itemIndex = IndexOf(item);
 
         if (itemIndex >= 0)
@@ -211,11 +200,11 @@ public class List<T> : IList<T>
 
     public IEnumerator<T> GetEnumerator()
     {
-        int modCountCopy = _modCount;
+        int initialModCount = _modCount;
 
         for (int i = 0; i < Count; ++i)
         {
-            if (modCountCopy != _modCount)
+            if (initialModCount != _modCount)
             {
                 throw new InvalidOperationException("The list should not change while the enumerator is running.");
             }
@@ -229,5 +218,67 @@ public class List<T> : IList<T>
         return GetEnumerator();
     }
 
-    public override string ToString() => string.Join(", ", _items[..Count]);
+    public override string ToString()
+    {
+        StringBuilder stringBuilder = new();
+        stringBuilder.Append('[');
+
+        foreach (T item in _items)
+        {
+            if (item is not null)
+            {
+                stringBuilder.Append(item).Append(", ");
+            }
+        }
+
+        if (stringBuilder.Length > 1 & stringBuilder.Length > 0)
+        {
+            stringBuilder.Length -= 2;
+        }
+
+        stringBuilder.Append(']');
+
+        return stringBuilder.ToString();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(obj, this))
+        {
+            return true;
+        }
+
+        if (obj is null || GetType() != obj.GetType())
+        {
+            return false;
+        }
+
+        List<T> list = (List<T>)obj;
+
+        foreach (T item in list)
+        {
+            if (!Contains(item))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public override int GetHashCode()
+    {
+        const int prime = 31;
+        int hash = 1;
+
+        foreach (T item in _items)
+        {
+            if ((item is not null))
+            {
+                hash = prime * hash + item.GetHashCode();
+            }
+        }
+
+        return hash;
+    }
 }
