@@ -14,7 +14,7 @@ public class SinglyLinkedList<T>
         {
             if (index < 0 || index >= Count)
             {
-                throw new IndexOutOfRangeException($"The index ({index}) must be between 0 and {Count - 1} (inclusive).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the length ({Count}).");
             }
 
             return GetNodeByIndex(index).Value;
@@ -24,7 +24,7 @@ public class SinglyLinkedList<T>
         {
             if (index < 0 || index >= Count)
             {
-                throw new IndexOutOfRangeException($"The index ({index}) must be between 0 and {Count - 1} (inclusive).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the length ({Count}).");
             }
 
             GetNodeByIndex(index).Value = value;
@@ -57,7 +57,7 @@ public class SinglyLinkedList<T>
     {
         if (index < 0 || index >= Count)
         {
-            throw new IndexOutOfRangeException($"The index ({index}) must be between 0 and {Count - 1} (inclusive).");
+            throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the length ({Count}).");
         }
 
         if (index == 0)
@@ -129,7 +129,7 @@ public class SinglyLinkedList<T>
     {
         if (index < 0 || index > Count)
         {
-            throw new IndexOutOfRangeException($"The index ({index}) must be between 0 and {Count} (inclusive).");
+            throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than or equal to the length ({Count}).");
         }
 
         if (index == 0)
