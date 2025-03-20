@@ -1,212 +1,138 @@
 ﻿using System.Collections;
+using System.Text;
 
 namespace HashTableTask;
 
-class HashTable<T> : ICollection<T>
+public class HashTable<T> : ICollection<T>
 {
     private List<T>?[] _buckets;
 
     public int Count { get; private set; }
 
-    private int Capacity
-    {
-        set
-        {
-            Array.Resize(ref _buckets, value);
-        }
-    }
+    private int _modCount;
 
     public bool IsReadOnly => false;
 
     public HashTable()
     {
         _buckets = new List<T>[10];
-        Count = 0;
     }
 
     public HashTable(int size)
     {
-        if (size < 0)
+        if (size <= 0)
         {
-            throw new ArgumentException("The size must be greater than 0.", nameof(size));
+            throw new ArgumentException($"The size ({size}) must be greater than 0.", nameof(size));
         }
 
         _buckets = new List<T>[size];
-        Count = 0;
     }
 
-    public List<T>? this[int hash]
+    private int GetIndex(T item)
     {
-        get
+        if (item is not null)
         {
-            int hashIndex = GetHashIndex(hash);
-
-            if (hashIndex < 0 || hashIndex >= _buckets.Length)
-            {
-                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than the length of the list ({_buckets.Length}).");
-            }
-
-            return _buckets[hashIndex];
+            return Math.Abs(item.GetHashCode() % _buckets.Length);
         }
 
-        set
-        {
-            int hashIndex = GetHashIndex(hash);
-
-            if (hashIndex < 0 || hashIndex > _buckets.Length)
-            {
-                throw new IndexOutOfRangeException($"The index must be greater than 0 and less than or equal to the length of the list ({_buckets.Length}).");
-            }
-
-            if (Count >= _buckets.Length)
-            {
-                ExpandAndRehash();
-            }
-
-            if (value is not null)
-            {
-                List<T>? values = _buckets[hashIndex];
-
-                if (values is null)
-                {
-                    _buckets[hashIndex] = value;
-                    Count++;
-                }
-                else if (!values.Equals(value))
-                {
-                    values.AddRange(value);
-                    Count++;
-                }
-            }
-            else
-            {
-                _buckets[hashIndex] = default;
-                Count--;
-            }
-        }
-    }
-
-    private int GetHashIndex(int hash) => Math.Abs(hash % _buckets.Length);
-
-    private void ExpandAndRehash()
-    {
-        int oldLength = _buckets.Length;
-        Capacity = _buckets.Length * 2;
-
-        for (int i = 0; i < oldLength; i++)
-        {
-            List<T>? values = _buckets[i];
-
-            if (values is null || values.Count <= 1)
-            {
-                continue;
-            }
-
-            foreach (T value in values)
-            {
-                int newHashIndex = GetHashIndex(value!.GetHashCode());
-
-                if (newHashIndex != i)
-                {
-                    _buckets[newHashIndex] = [value];
-                }
-            }
-        }
+        return 0;
     }
 
     public void Add(T item)
     {
-        ArgumentNullException.ThrowIfNull(item, nameof(item));
+        int finalIndex = GetIndex(item);
+        List<T>? bucket = _buckets[finalIndex];
 
-        if (Count >= _buckets.Length)
+        if (bucket is not null)
         {
-            ExpandAndRehash();
-        }
-
-        int hashIndex = GetHashIndex(item.GetHashCode());
-
-        List<T>? values = _buckets[hashIndex];
-
-        if (values is not null)
-        {
-            if (!values.Contains(item))
-            {
-                values.Add(item);
-                Count++;
-            }
+            bucket.Add(item);
         }
         else
         {
-            _buckets[hashIndex] = [item];
-            Count++;
+            _buckets[finalIndex] = [item];
         }
+
+        Count++;
+        _modCount++;
     }
 
     public void Clear()
     {
-        _buckets = new List<T>[10];
+        if (Count == 0)
+        {
+            return;
+        }
+
+        foreach (List<T>? bucket in _buckets)
+        {
+            if (bucket is not null)
+            {
+                bucket?.Clear();
+            }
+        }
+
         Count = 0;
+        _modCount++;
     }
 
     public bool Contains(T item)
     {
-        ArgumentNullException.ThrowIfNull(item, nameof(item));
-
-        List<T>? values = _buckets[GetHashIndex(item.GetHashCode())];
-
-        if (values is null)
-        {
-            return false;
-        }
-
-        return values.Contains(item);
+        List<T>? bucket = _buckets[GetIndex(item)];
+        return bucket?.Contains(item) ?? false;
     }
 
     public void CopyTo(T[] array, int arrayIndex)
     {
-        if (arrayIndex < 0 || arrayIndex >= array.Length)
+        if (arrayIndex < 0)
         {
-            throw new IndexOutOfRangeException($"The index must be greater 0 and less than the length of the array ({array.Length}).");
+            throw new ArgumentOutOfRangeException(nameof(arrayIndex), $"The index ({arrayIndex}) must be greater or equal to 0.");
         }
 
-        for (int i = 0; i < Count; i++)
+        if (array.Length - arrayIndex < Count)
         {
-            array.SetValue(_buckets[i], arrayIndex++);
+            throw new ArgumentException($"The number of elements in the source list ({Count}) must be less than or equal to available space from arrayIndex ({arrayIndex}) to the end of the destination array ({array.Length}).");
+        }
+
+        int arrayIndexCopy = arrayIndex;
+
+        foreach (T? bucket in this)
+        {
+            array[arrayIndexCopy] = bucket;
+            arrayIndexCopy++;
         }
     }
 
     public bool Remove(T item)
     {
-        ArgumentNullException.ThrowIfNull(item, nameof(item));
+        int finalIndex = GetIndex(item);
+        List<T>? bucket = _buckets[finalIndex];
 
-        int hashIndex = GetHashIndex(item.GetHashCode());
-        List<T>? values = _buckets[hashIndex];
-
-        if (values is null)
+        if (bucket is null)
         {
             return false;
         }
 
-        bool isDeleted = values.Remove(item);
+        bool isRemoved = bucket.Remove(item);
+        Count--;
+        _modCount++;
 
-        if (isDeleted == true)
-        {
-            _buckets[hashIndex] = default;
-            Count--;
-        }
-
-        return isDeleted;
+        return isRemoved;
     }
 
     public IEnumerator<T> GetEnumerator()
     {
-        for (int i = 0; i < _buckets.Length; ++i)
-        {
-            List<T>? values = _buckets[i];
+        int initialModCount = _modCount;
 
-            if (values is not null)
+        foreach (List<T>? bucket in _buckets)
+        {
+            if (initialModCount != _modCount)
             {
-                List<T>.Enumerator enumerator = values.GetEnumerator();
+                throw new InvalidOperationException("The list should not change while the enumerator is running.");
+            }
+
+            if (bucket is not null)
+            {
+                IEnumerator<T> enumerator = bucket.GetEnumerator();
 
                 while (enumerator.MoveNext())
                 {
@@ -219,5 +145,24 @@ class HashTable<T> : ICollection<T>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+
+    public override string ToString()
+    {
+        StringBuilder stringBuilder = new();
+        stringBuilder.Append('[');
+
+        foreach (T item in this)
+        {
+            stringBuilder.Append(item).Append(", ");
+        }
+
+        if (stringBuilder.Length > 1 & stringBuilder.Length > 0)
+        {
+            stringBuilder.Length -= 2;
+        }
+
+        stringBuilder.Append(']');
+        return stringBuilder.ToString();
     }
 }

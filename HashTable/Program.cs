@@ -6,17 +6,14 @@ internal class Program
     {
         HashTable<string> hashTable = [];
 
-        hashTable["Some string 1".GetHashCode()] = ["Some string 1"];
-
-        Console.WriteLine(string.Join(", ", hashTable["Some string 1".GetHashCode()]!));
-
+        hashTable.Add("Some string 1");
         hashTable.Add("Some string 2");
 
-        IEnumerator<string> enumerator = hashTable.GetEnumerator();
+        Console.WriteLine(hashTable);
 
-        while (enumerator.MoveNext())
+        foreach (string element in hashTable.AsEnumerable())
         {
-            Console.WriteLine(enumerator.Current);
+            Console.WriteLine(element);
         }
 
         Console.WriteLine(hashTable.Remove("Some string"));
