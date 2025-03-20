@@ -166,6 +166,8 @@ public class List<T> : IList<T>
 
     public void CopyTo(T[] array, int arrayIndex)
     {
+        ArgumentNullException.ThrowIfNull(array, nameof(array));
+
         if (arrayIndex < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(arrayIndex), $"The index ({arrayIndex}) must be greater 0.");
