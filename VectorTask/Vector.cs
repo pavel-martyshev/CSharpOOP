@@ -31,20 +31,18 @@ public class Vector
         }
 
         _components = new double[components.Length];
-
         Array.Copy(components, _components, components.Length);
     }
 
     public Vector(int size, double[] components)
     {
-        if (size < 0)
+        if (size <= 0)
         {
-            throw new ArgumentException($"Size ({size}) must be greater than 0", nameof(size));
+            throw new ArgumentOutOfRangeException(nameof(size), $"Size ({size}) must be greater than 0");
         }
 
         _components = new double[size];
-
-        Array.Copy(components, _components, _components.Length);
+        Array.Copy(components, _components, Math.Min(components.Length, size));
     }
 
     public double this[int index]
