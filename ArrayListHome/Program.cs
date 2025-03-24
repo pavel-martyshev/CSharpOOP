@@ -22,7 +22,7 @@ internal class Program
     {
         if (numbers.Count == 0)
         {
-            throw new ArgumentException("Список не должен быть пустым.", nameof(numbers));
+            return;
         }
 
         for (int i = numbers.Count - 1; i >= 0; i--)
@@ -38,7 +38,7 @@ internal class Program
     {
         if (list.Count == 0)
         {
-            throw new ArgumentException("Список не должен быть пустым.", nameof(list));
+            return [];
         }
 
         List<T> uniqueElements = new(list.Count);
@@ -62,13 +62,21 @@ internal class Program
         {
             Console.WriteLine(string.Join(Environment.NewLine, GetFileLinesAsList(filePath)));
         }
-        catch (Exception e) when (e is FileNotFoundException || e is DirectoryNotFoundException)
+        catch (FileNotFoundException)
         {
             Console.WriteLine($"Файл не найден ({filePath})");
+        }
+        catch (DirectoryNotFoundException)
+        {
+            Console.WriteLine($"Указанный путь не существует ({filePath})");
         }
         catch (UnauthorizedAccessException)
         {
             Console.WriteLine($"Нет прав для чтения файла ({filePath})");
+        }
+        catch (IOException e)
+        {
+            Console.WriteLine($"Не удалось прочитать данные в файле ({filePath}). {Environment.NewLine}{e.Message}");
         }
 
         Console.WriteLine();
@@ -78,6 +86,10 @@ internal class Program
         try
         {
             RemoveEvenNumbers(numbers);
+        }
+        catch (NullReferenceException)
+        {
+            Console.WriteLine($"Список чисел не должен быть null");
         }
         catch (ArgumentException e)
         {
@@ -91,6 +103,10 @@ internal class Program
         try
         {
             Console.WriteLine(string.Join(Environment.NewLine, GetUniqueElements([1, 5, 2, 1, 3, 5])));
+        }
+        catch (NullReferenceException)
+        {
+            Console.WriteLine($"Список чисел не должен быть null");
         }
         catch (ArgumentException e)
         {
