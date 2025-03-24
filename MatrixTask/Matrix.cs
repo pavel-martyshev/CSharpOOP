@@ -17,12 +17,12 @@ public class Matrix
     {
         if (rowsCount <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(rowsCount), "The number of rows must be greater than 0.");
+            throw new ArgumentOutOfRangeException(nameof(rowsCount), $"The number of rows ({rowsCount}) must be greater than 0.");
         }
 
         if (columnsCount <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(columnsCount), "The number of columns must be greater than 0.");
+            throw new ArgumentOutOfRangeException(nameof(columnsCount), $"The number of columns ({columnsCount}) must be greater than 0.");
         }
 
         _rows = new Vector[rowsCount];
@@ -49,14 +49,14 @@ public class Matrix
 
         if (rowsCount <= 0)
         {
-            throw new ArgumentException("The number of rows must be greater than 0.", nameof(matrixArray));
+            throw new ArgumentException($"The number of rows ({rowsCount}) must be greater than 0.", nameof(matrixArray));
         }
 
         int columnsCount = matrixArray.GetLength(1);
 
         if (columnsCount <= 0)
         {
-            throw new ArgumentException("The number of columns must be greater than 0.", nameof(matrixArray));
+            throw new ArgumentException($"The number of columns ({columnsCount}) must be greater than 0.", nameof(matrixArray));
         }
 
         _rows = new Vector[rowsCount];
@@ -104,7 +104,7 @@ public class Matrix
         {
             if (index < 0 || index >= _rows.Length)
             {
-                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the length ({_rows.Length}).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than or equal to the number of rows ({_rows.Length}).");
             }
 
             return new Vector(_rows[index]);
@@ -114,7 +114,7 @@ public class Matrix
         {
             if (index < 0 || index >= _rows.Length)
             {
-                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the length ({_rows.Length}).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than or equal to the number of rows ({_rows.Length}).");
             }
 
             if (value.Size != ColumnsCount)
