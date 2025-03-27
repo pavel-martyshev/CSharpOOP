@@ -51,7 +51,7 @@ public class Vector
         {
             if (index < 0 || index >= _components.Length)
             {
-                throw new IndexOutOfRangeException($"The index ({index}) must be greater than or equal to 0 and less than the length ({_components.Length}).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be greater than or equal to 0 and less than the size ({_components.Length}).");
             }
 
             return _components[index];
@@ -61,7 +61,7 @@ public class Vector
         {
             if (index < 0 || index >= _components.Length)
             {
-                throw new IndexOutOfRangeException($"The index ({index}) must be greater than or equal to 0 and less than the length ({_components.Length}).");
+                throw new IndexOutOfRangeException($"The index ({index}) must be greater than or equal to 0 and less than the size ({_components.Length}).");
             }
 
             _components[index] = value;
