@@ -30,18 +30,13 @@ public class HashTable<T> : ICollection<T>
 
     private int GetIndex(T item)
     {
-        if (item is not null)
-        {
-            return Math.Abs(item.GetHashCode() % _buckets.Length);
-        }
-
-        return 0;
+        return item is null ? 0 : Math.Abs(item.GetHashCode() % _buckets.Length);
     }
 
     public void Add(T item)
     {
-        int finalIndex = GetIndex(item);
-        List<T>? bucket = _buckets[finalIndex];
+        int index = GetIndex(item);
+        List<T>? bucket = _buckets[index];
 
         if (bucket is not null)
         {
@@ -49,7 +44,7 @@ public class HashTable<T> : ICollection<T>
         }
         else
         {
-            _buckets[finalIndex] = [item];
+            _buckets[index] = [item];
         }
 
         Count++;
@@ -65,10 +60,7 @@ public class HashTable<T> : ICollection<T>
 
         foreach (List<T>? bucket in _buckets)
         {
-            if (bucket is not null)
-            {
-                bucket?.Clear();
-            }
+            bucket?.Clear();
         }
 
         Count = 0;
@@ -90,22 +82,22 @@ public class HashTable<T> : ICollection<T>
 
         if (array.Length - arrayIndex < Count)
         {
-            throw new ArgumentException($"The number of elements in the source list ({Count}) must be less than or equal to available space from arrayIndex ({arrayIndex}) to the end of the destination array ({array.Length}).");
+            throw new ArgumentException($"The number of elements in the table ({Count}) must be less than or equal to available space from arrayIndex ({arrayIndex}) to the end of the destination array ({array.Length}).");
         }
 
-        int arrayIndexCopy = arrayIndex;
+        int i = arrayIndex;
 
-        foreach (T? bucket in this)
+        foreach (T item in this)
         {
-            array[arrayIndexCopy] = bucket;
-            arrayIndexCopy++;
+            array[i] = item;
+            i++;
         }
     }
 
     public bool Remove(T item)
     {
-        int finalIndex = GetIndex(item);
-        List<T>? bucket = _buckets[finalIndex];
+        int index = GetIndex(item);
+        List<T>? bucket = _buckets[index];
 
         if (bucket is null)
         {
@@ -113,8 +105,12 @@ public class HashTable<T> : ICollection<T>
         }
 
         bool isRemoved = bucket.Remove(item);
-        Count--;
-        _modCount++;
+
+        if (isRemoved)
+        {
+            Count--;
+            _modCount++;
+        }
 
         return isRemoved;
     }
@@ -125,18 +121,16 @@ public class HashTable<T> : ICollection<T>
 
         foreach (List<T>? bucket in _buckets)
         {
-            if (initialModCount != _modCount)
-            {
-                throw new InvalidOperationException("The list should not change while the enumerator is running.");
-            }
-
             if (bucket is not null)
             {
-                IEnumerator<T> enumerator = bucket.GetEnumerator();
-
-                while (enumerator.MoveNext())
+                foreach (T element in bucket)
                 {
-                    yield return enumerator.Current;
+                    if (initialModCount != _modCount)
+                    {
+                        throw new InvalidOperationException("The list should not change while the enumerator is running.");
+                    }
+
+                    yield return element;
                 }
             }
         }
@@ -149,20 +143,22 @@ public class HashTable<T> : ICollection<T>
 
     public override string ToString()
     {
+        if (Count == 0)
+        {
+            return "[]";
+        }
+
         StringBuilder stringBuilder = new();
         stringBuilder.Append('[');
 
         foreach (T item in this)
         {
-            stringBuilder.Append(item).Append(", ");
+            stringBuilder.Append(item is null ? "null" : item).Append(", ");
         }
 
-        if (stringBuilder.Length > 1 & stringBuilder.Length > 0)
-        {
-            stringBuilder.Length -= 2;
-        }
-
+        stringBuilder.Length -= 2;
         stringBuilder.Append(']');
+
         return stringBuilder.ToString();
     }
 }

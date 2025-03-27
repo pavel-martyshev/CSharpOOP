@@ -11,7 +11,7 @@ internal class Program
 
         Console.WriteLine(hashTable);
 
-        foreach (string element in hashTable.AsEnumerable())
+        foreach (string element in hashTable)
         {
             Console.WriteLine(element);
         }
