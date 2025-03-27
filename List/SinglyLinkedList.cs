@@ -12,22 +12,24 @@ public class SinglyLinkedList<T>
     {
         get
         {
-            if (index < 0 || index >= Count)
-            {
-                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the length ({Count}).");
-            }
+            ValidateIndex(index);
 
             return GetNodeByIndex(index).Value;
         }
 
         set
         {
-            if (index < 0 || index >= Count)
-            {
-                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the length ({Count}).");
-            }
+            ValidateIndex(index);
 
             GetNodeByIndex(index).Value = value;
+        }
+    }
+
+    private void ValidateIndex(int index)
+    {
+        if (index < 0 || index >= Count)
+        {
+            throw new IndexOutOfRangeException($"The index ({index}) must be greater than or equal to 0 and less than the elements count ({Count}).");
         }
     }
 
@@ -55,10 +57,7 @@ public class SinglyLinkedList<T>
 
     public T RemoveByIndex(int index)
     {
-        if (index < 0 || index >= Count)
-        {
-            throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the length ({Count}).");
-        }
+        ValidateIndex(index);
 
         if (index == 0)
         {
@@ -76,12 +75,12 @@ public class SinglyLinkedList<T>
 
     public bool RemoveByValue(T value)
     {
-        if (Count == 0)
+        if (Count == 0 || value is null)
         {
             return false;
         }
 
-        if (value!.Equals(_head!.Value))
+        if (value.Equals(_head!.Value))
         {
             RemoveFirst();
             return true;
@@ -129,7 +128,7 @@ public class SinglyLinkedList<T>
     {
         if (index < 0 || index > Count)
         {
-            throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than or equal to the length ({Count}).");
+            throw new IndexOutOfRangeException($"The index ({index}) must be greater than or equal to 0 and less than or equal to the elements count ({Count}).");
         }
 
         if (index == 0)
@@ -139,9 +138,8 @@ public class SinglyLinkedList<T>
         }
 
         ListNode<T> previousNode = GetNodeByIndex(index - 1);
-        ListNode<T> newNode = new(value, previousNode.Next);
+        previousNode.Next = new(value, previousNode.Next);
 
-        previousNode.Next = newNode;
         Count++;
     }
 
@@ -191,6 +189,11 @@ public class SinglyLinkedList<T>
 
     public override string ToString()
     {
+        if (Count == 0)
+        {
+            return "[]";
+        }
+
         StringBuilder stringBuilder = new();
 
         stringBuilder.Append('[');
@@ -200,10 +203,7 @@ public class SinglyLinkedList<T>
             stringBuilder.Append(node.Value).Append(", ");
         }
 
-        if (stringBuilder.Length > 1 & stringBuilder.Length > 0)
-        {
-            stringBuilder.Length -= 2;
-        }
+        stringBuilder.Length -= 2;
 
         stringBuilder.Append(']');
 
