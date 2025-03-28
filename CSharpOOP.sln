@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashTableTask", "HashTable\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeTask", "Tree\TreeTask.csproj", "{567C0A14-9D16-4EF4-AF19-9F1E2C821FE5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambdas", "Lambdas\Lambdas.csproj", "{29AAD5D3-2994-4A1E-A654-58CAD9CFA55F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{567C0A14-9D16-4EF4-AF19-9F1E2C821FE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{567C0A14-9D16-4EF4-AF19-9F1E2C821FE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{567C0A14-9D16-4EF4-AF19-9F1E2C821FE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29AAD5D3-2994-4A1E-A654-58CAD9CFA55F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29AAD5D3-2994-4A1E-A654-58CAD9CFA55F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29AAD5D3-2994-4A1E-A654-58CAD9CFA55F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29AAD5D3-2994-4A1E-A654-58CAD9CFA55F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
