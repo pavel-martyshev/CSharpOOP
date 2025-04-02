@@ -104,7 +104,7 @@ public class Matrix
         {
             if (index < 0 || index >= _rows.Length)
             {
-                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than or equal to the number of rows ({_rows.Length}).");
+                throw new IndexOutOfRangeException($"Row index {index} is out of bounds. Matrix contains {RowsCount} rows (valid range: 0..{RowsCount - 1}).");
             }
 
             return new Vector(_rows[index]);
@@ -114,7 +114,7 @@ public class Matrix
         {
             if (index < 0 || index >= _rows.Length)
             {
-                throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than or equal to the number of rows ({_rows.Length}).");
+                throw new IndexOutOfRangeException($"Row index {index} is out of bounds. Matrix contains {RowsCount} rows (valid range: 0..{RowsCount - 1}).");
             }
 
             if (value.Size != ColumnsCount)
@@ -178,7 +178,7 @@ public class Matrix
     {
         if (index < 0 || index >= ColumnsCount)
         {
-            throw new IndexOutOfRangeException($"The index ({index}) must be greater than 0 and less than the columns count ({ColumnsCount}).");
+            throw new IndexOutOfRangeException($"Column index {index} is out of bounds. Matrix contains {ColumnsCount} columns (valid range: 0..{ColumnsCount - 1}).");
         }
 
         double[] columnComponents = new double[RowsCount];
@@ -276,7 +276,7 @@ public class Matrix
     {
         if (vector.Size != ColumnsCount)
         {
-            throw new ArgumentException($"The size ({vector.Size}) of the vector must be equal to the number of columns of the matrix.", nameof(vector));
+            throw new ArgumentException($"The size ({vector.Size}) of the vector must be equal to the number of columns of the matrix ({ColumnsCount}).", nameof(vector));
         }
 
         Vector resultVector = new(RowsCount);
