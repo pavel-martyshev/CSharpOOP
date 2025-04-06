@@ -4,52 +4,48 @@ using System.Linq;
 
 internal class Program
 {
-    public static List<string> GetUniqueName(List<Person> people)
+    public static List<string> GetUniqueNames(List<Person> persons)
     {
-        return [.. people.Select(p => p.Name).Distinct()];
+        return persons.Select(p => p.Name).Distinct().ToList();
     }
 
-    public static List<Person> GetPeopleUnder18(List<Person> people)
+    public static List<Person> GetPeopleUnder18(List<Person> persons)
     {
-        return [.. people.Where(p => p.Age < 18)];
+        return persons.Where(p => p.Age < 18).ToList();
     }
 
-    public static double GetAverageAge(List<Person> people)
+    public static double GetAverageAge(List<Person> persons)
     {
-        return (double)people.Sum(p => p.Age) / people.Count;
+        return persons.Average(p => p.Age);
     }
 
-    public static Dictionary<string, double> GetNameToAverageAgeMap(List<Person> people)
+    public static Dictionary<string, double> GetNameToAverageAgeMap(List<Person> pesons)
     {
-        return people
+        return pesons
             .GroupBy(p => p.Name)
-            .ToDictionary(p => p.Key, p => (double)p
-                .Sum(p => p.Age) / p
-                .ToList().Count);
+            .ToDictionary(group => group.Key, group => group.Average(p => p.Age));
     }
 
-    public static List<Person> GetPeopleInAgeRangeDescending(List<Person> people, int minAge, int maxAge)
+    public static List<Person> GetPeopleInAgeRangeDescending(List<Person> persons, int minAge, int maxAge)
     {
-        return [.. people
+        return persons
             .Where(p => p.Age >= minAge && p.Age <= maxAge)
-            .OrderByDescending(p => p.Age)];
+            .OrderByDescending(p => p.Age)
+            .ToList();
     }
 
-    public static IEnumerable<long> GetFibonacciSequenceElement(int maxElementsCount)
+    public static IEnumerable<long> GetFibonacciNumbersSequence()
     {
-        int i = 0;
         long fibonacciNumber = 0;
         long nextFibonacciNumber = 1;
 
-        while (i < maxElementsCount)
+        while (true)
         {
             long previousFibonacciNumber = fibonacciNumber;
             fibonacciNumber = nextFibonacciNumber;
-            nextFibonacciNumber = fibonacciNumber + previousFibonacciNumber;
+            nextFibonacciNumber = previousFibonacciNumber + fibonacciNumber;
 
             yield return fibonacciNumber;
-
-            i++;
         }
     }
 
@@ -60,7 +56,7 @@ internal class Program
         Console.ResetColor();
         Console.WriteLine();
 
-        List<Person> people =
+        List<Person> persons =
         [
             new Person("Ivan", 15),
             new Person("Oleg", 18),
@@ -79,29 +75,29 @@ internal class Program
             new Person("Olga", 29)
         ];
 
-        Console.WriteLine($"Names: {string.Join(", ", GetUniqueName(people))}");
+        Console.WriteLine($"Names: {string.Join(", ", GetUniqueNames(persons))}");
 
         Console.WriteLine();
 
-        var peopleUnder18 = GetPeopleUnder18(people);
+        var personsUnder18 = GetPeopleUnder18(persons);
 
-        Console.WriteLine($"People under 18 years old: {string.Join(", ", peopleUnder18.Select(p => p.Name))}");
-        Console.WriteLine($"The average age of people is under 18 years old: {GetAverageAge(peopleUnder18)}");
+        Console.WriteLine($"People under 18 years old: {string.Join(", ", personsUnder18.Select(p => p.Name))}");
+        Console.WriteLine($"The average age of people is under 18 years old: {GetAverageAge(personsUnder18)}");
 
         Console.WriteLine();
 
-        Console.WriteLine($"Names to average age:");
+        Console.WriteLine("Names to average age:");
 
-        foreach (var person in GetNameToAverageAgeMap(people))
+        foreach (var adultPerson in GetNameToAverageAgeMap(persons))
         {
-            Console.WriteLine($"Name = {person.Key}, average age = {person.Value}");
+            Console.WriteLine($"Name = {adultPerson.Key}, average age = {adultPerson.Value}");
         }
 
         Console.WriteLine();
 
-        Console.WriteLine($"People in the age range from 20 to 45 in descending order:");
+        Console.WriteLine("People in the age range from 20 to 45 in descending order:");
 
-        foreach (var person in GetPeopleInAgeRangeDescending(people, 20, 45))
+        foreach (var person in GetPeopleInAgeRangeDescending(persons, 20, 45))
         {
             Console.WriteLine(person);
         }
@@ -114,11 +110,11 @@ internal class Program
         Console.WriteLine();
 
         Console.Write($"Enter the count of elements in the sequence to print{Environment.NewLine}> ");
-        var elementsCount = int.Parse(Console.ReadLine()!);
+        var elementsToPrint = int.Parse(Console.ReadLine()!);
 
-        foreach (var element in GetFibonacciSequenceElement(elementsCount))
+        foreach (var number in GetFibonacciNumbersSequence().Take(elementsToPrint))
         {
-            Console.WriteLine(element);
+            Console.WriteLine(number);
         }
     }
 }

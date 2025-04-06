@@ -1,10 +1,10 @@
 ﻿namespace Lambdas;
 
-internal class Person(string name, int value)
+internal class Person(string name, int age)
 {
     public string Name { get; private set; } = name;
 
-    private int _age = value;
+    private int _age = age;
 
     public int Age
     {
