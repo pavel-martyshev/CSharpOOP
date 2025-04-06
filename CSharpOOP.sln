@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambdas", "Lambdas\Lambdas.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphTask", "Graph\GraphTask.csproj", "{F4BAAB77-5A7C-49B6-854F-EF51667D72D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemperatureConverterTask", "TemperatureConverter\TemperatureConverterTask.csproj", "{08F662A8-0EA8-4652-9939-8BF1E91AD57F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{F4BAAB77-5A7C-49B6-854F-EF51667D72D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4BAAB77-5A7C-49B6-854F-EF51667D72D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4BAAB77-5A7C-49B6-854F-EF51667D72D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08F662A8-0EA8-4652-9939-8BF1E91AD57F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08F662A8-0EA8-4652-9939-8BF1E91AD57F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08F662A8-0EA8-4652-9939-8BF1E91AD57F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08F662A8-0EA8-4652-9939-8BF1E91AD57F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
