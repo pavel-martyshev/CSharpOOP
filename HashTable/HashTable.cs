@@ -82,7 +82,8 @@ public class HashTable<T> : ICollection<T>
 
         if (array.Length - arrayIndex < Count)
         {
-            throw new ArgumentException($"The number of elements in the table ({Count}) must be less than or equal to available space from arrayIndex ({arrayIndex}) to the end of the destination array ({array.Length}).");
+            throw new ArgumentException($"The number of elements in the table ({Count}) must be less than or equal to available " +
+                $"space from arrayIndex ({arrayIndex}) to the end of the destination array ({array.Length}).", nameof(array));
         }
 
         int i = arrayIndex;
@@ -127,7 +128,7 @@ public class HashTable<T> : ICollection<T>
                 {
                     if (initialModCount != _modCount)
                     {
-                        throw new InvalidOperationException("The list should not change while the enumerator is running.");
+                        throw new InvalidOperationException("The HashTable should not change while the enumerator is running.");
                     }
 
                     yield return element;
