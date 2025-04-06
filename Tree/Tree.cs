@@ -2,96 +2,175 @@
 
 namespace TreeTask;
 
-public class Tree<T> where T : IComparable<T>
+public class Tree<T>
 {
     private TreeNode<T>? _root;
 
+    private readonly IComparer<T>? _comparer;
+
     public int Count { get; private set; }
 
-    private static TreeNode<T> Add(TreeNode<T>? node, T value)
+    public Tree(TreeNode<T>? root)
     {
-        if (node is null)
+        _root = root;
+        Count++;
+    }
+
+    public Tree(TreeNode<T>? root, IComparer<T> comparer)
+    {
+        _root = root;
+        _comparer = comparer;
+        Count++;
+    }
+
+    private static int CompareTo(T x, T y, IComparer<T>? comparer)
+    {
+        if (comparer is not null)
         {
-            return new TreeNode<T>(value);
+            return comparer.Compare(x, y);
         }
 
-        int comparison = value.CompareTo(node!.Value);
-
-        if (comparison < 0)
+        if (x is IComparable<T> comparableT)
         {
-            node.Left = Add(node!.Left, value);
-        }
-        else
-        {
-            node.Right = Add(node!.Right, value);
+            return comparableT.CompareTo(y);
         }
 
-        return node;
+        throw new InvalidOperationException($"Type {typeof(T)} must implement IComparable or a custom IComparer<T> must be provided.");
     }
 
     public void Add(T value)
     {
-        if (_root == null)
+        if (_root is null)
         {
             _root = new(value);
+            Count++;
+            return;
         }
-        else
+
+        TreeNode<T>? node = _root;
+
+        for (int i = 0; i < Count; i++)
         {
-            Add(_root, value);
+            int comparisonResult = CompareTo(value, node.Value, _comparer);
+
+            if (comparisonResult < 0)
+            {
+                if (node.Left is not null)
+                {
+                    node = node.Left;
+                }
+                else
+                {
+                    node.Left = new(value);
+                    break;
+                }
+            }
+            else
+            {
+                if (node.Right is not null)
+                {
+                    node = node.Right;
+                }
+                else
+                {
+                    node.Right = new(value);
+                    break;
+                }
+            }
         }
 
         Count++;
     }
 
-    private static TreeNode<T>? GetNode(TreeNode<T>? node, T value)
+    private TreeNode<T>? GetNode(T value)
     {
-        if (node is null)
+        if (_root is null)
         {
             return null;
         }
 
-        int comparison = value.CompareTo(node!.Value);
+        TreeNode<T>? node = _root;
 
-        if (comparison < 0)
+        for (int i = 0; i < Count; i++)
         {
-            return GetNode(node.Left, value);
-        }
-        else if (comparison > 0)
-        {
-            return GetNode(node.Right, value);
+            if (node is null)
+            {
+                return null;
+            }
+
+            int comparisonResult = CompareTo(value, node.Value, _comparer);
+
+            if (comparisonResult == 0)
+            {
+                return node;
+            }
+
+            if (comparisonResult < 0)
+            {
+                node = node.Left;
+            }
+            else if (comparisonResult > 0)
+            {
+                node = node.Right;
+            }
         }
 
-        return node;
+        return null;
     }
 
-    public TreeNode<T>? GetNode(T value)
+    public bool Contains(T value)
     {
-        return GetNode(_root, value);
+        TreeNode<T>? node = GetNode(value);
+
+        if (node is null)
+        {
+            return false;
+        }
+
+        return true;
     }
 
-    private static TreeNode<T>? GetParent(TreeNode<T>? node, TreeNode<T>? parent, T value)
+    private TreeNode<T>? GetParent(T value)
     {
-        int comparison = value.CompareTo(node!.Value);
+        TreeNode<T>? previousNode = null;
+        TreeNode<T>? node = _root;
 
-        if (comparison < 0)
+        for (int i = 0; i < Count; i++)
         {
-            return GetParent(node.Left, node, value);
-        }
-        else if (comparison > 0)
-        {
-            return GetParent(node.Right, node, value);
+            if (node is null)
+            {
+                return null;
+            }
+
+            int comparisonResult = CompareTo(value, node.Value, _comparer);
+
+            if (comparisonResult == 0)
+            {
+                return previousNode;
+            }
+
+            if (comparisonResult < 0)
+            {
+                previousNode = node;
+                node = node.Left;
+            }
+            else if (comparisonResult > 0)
+            {
+                previousNode = node;
+                node = node.Right;
+            }
         }
 
-        return parent;
+        return previousNode;
     }
 
     private static void ReplaceParentChild(TreeNode<T> parent, TreeNode<T> child, TreeNode<T>? newChild)
     {
-        if (parent.Left is not null && parent.Left.Equals(child))
+        if (parent.Left is not null && ReferenceEquals(parent.Left, child))
         {
             parent.Left = newChild;
         }
-        else if (parent.Right is not null && parent.Right.Equals(child))
+        else if (parent.Right is not null && ReferenceEquals(parent.Right, child))
         {
             parent.Right = newChild;
         }
@@ -149,7 +228,7 @@ public class Tree<T> where T : IComparable<T>
             return false;
         }
 
-        TreeNode<T>? parent = GetParent(_root, null, value);
+        TreeNode<T>? parent = GetParent(value);
 
         if (node.IsLeaf)
         {
@@ -169,24 +248,21 @@ public class Tree<T> where T : IComparable<T>
         return true;
     }
 
-    public string BreadthFirstTraversal()
+    public void TraverseBreadthFirst(Action<T> action)
     {
-        if (Count == 0)
+        if (_root is null)
         {
-            return "[]";
+            throw new InvalidOperationException("Tree is empty");
         }
 
-        StringBuilder stringBuilder = new();
-        stringBuilder.Append('[');
-
         Queue<TreeNode<T>> queue = new();
-        queue.Enqueue(_root!);
+        queue.Enqueue(_root);
 
         while (queue.Count > 0)
         {
             TreeNode<T> node = queue.Dequeue();
 
-            stringBuilder.Append(node.Value).Append(", ");
+            action.Invoke(node.Value);
 
             if (node.Left is not null)
             {
@@ -198,59 +274,43 @@ public class Tree<T> where T : IComparable<T>
                 queue.Enqueue(node.Right);
             }
         }
-
-        stringBuilder.Length -= 2;
-        stringBuilder.Append(']');
-
-        return stringBuilder.ToString();
     }
 
-    private static void RecursiveDepthTraversal(TreeNode<T> node, StringBuilder stringBuilder)
+    private static void TraverseDepthFirstRecursive(TreeNode<T> node, Action<T> action)
     {
-        stringBuilder.Append(node.Value).Append(", ");
+        action.Invoke(node.Value);
 
         foreach (TreeNode<T> child in node.Children)
         {
-            RecursiveDepthTraversal(child, stringBuilder);
+            TraverseDepthFirstRecursive(child, action);
         }
     }
 
-    public string RecursiveDepthTraversal()
+    public void TraverseDepthFirstRecursive(Action<T> action)
     {
-        if (Count == 0)
+        if (_root is null)
         {
-            return "[]";
+            throw new InvalidOperationException("Tree is empty");
         }
 
-        StringBuilder stringBuilder = new();
-        stringBuilder.Append('[');
-
-        RecursiveDepthTraversal(_root!, stringBuilder);
-
-        stringBuilder.Length -= 2;
-        stringBuilder.Append(']');
-
-        return stringBuilder.ToString();
+        TraverseDepthFirstRecursive(_root, action);
     }
 
-    public string DepthTraversal()
+    public void TraverseDepthFirst(Action<T> action)
     {
-        if (Count == 0)
+        if (_root is null)
         {
-            return "[]";
+            throw new InvalidOperationException("Tree is empty");
         }
-
-        StringBuilder stringBuilder = new();
-        stringBuilder.Append('[');
 
         Stack<TreeNode<T>> stack = new();
-        stack.Push(_root!);
+        stack.Push(_root);
 
         while (stack.Count > 0)
         {
             TreeNode<T> node = stack.Pop();
 
-            stringBuilder.Append(node.Value).Append(", ");
+            action.Invoke(node.Value);
 
             if (node.Right is not null)
             {
@@ -262,6 +322,19 @@ public class Tree<T> where T : IComparable<T>
                 stack.Push(node.Left);
             }
         }
+    }
+
+    public override string ToString()
+    {
+        if (_root is null)
+        {
+            return "[]";
+        }
+
+        StringBuilder stringBuilder = new();
+        stringBuilder.Append('[');
+
+        TraverseBreadthFirst(value => stringBuilder.Append(value).Append(", "));
 
         stringBuilder.Length -= 2;
         stringBuilder.Append(']');

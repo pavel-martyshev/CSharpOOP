@@ -4,9 +4,8 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        Tree<int> tree = new();
+        Tree<int> tree = new(new TreeNode<int>(8));
 
-        tree.Add(8);
         tree.Add(3);
         tree.Add(1);
         tree.Add(10);
@@ -20,10 +19,22 @@ internal class Program
 
         tree.Remove(3);
 
-        Console.WriteLine(tree.BreadthFirstTraversal());
-        Console.WriteLine(tree.RecursiveDepthTraversal());
-        Console.WriteLine(tree.DepthTraversal());
+        Console.WriteLine("Breadth first traversal:");
+        tree.TraverseBreadthFirst(value => Console.WriteLine(value));
 
+        Console.WriteLine();
+
+        Console.WriteLine("Depth first traversal recursive:");
+        tree.TraverseDepthFirstRecursive(value => Console.WriteLine(value));
+
+        Console.WriteLine();
+
+        Console.WriteLine("Depth first traversal:");
+        tree.TraverseDepthFirst(value => Console.WriteLine(value));
+
+        Console.WriteLine();
+
+        Console.WriteLine(tree);
         Console.WriteLine($"Count = {tree.Count}");
     }
 }
