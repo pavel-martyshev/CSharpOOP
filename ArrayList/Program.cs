@@ -17,11 +17,9 @@ internal class Program
         Console.WriteLine($"Its count: {numbers.Count}");
         Console.WriteLine();
 
-        IEnumerator<int> numbersEnumerator = numbers.GetEnumerator();
-
-        while (numbersEnumerator.MoveNext())
+        foreach (int item in numbers)
         {
-            Console.WriteLine(numbersEnumerator.Current);
+            Console.WriteLine(item);
         }
     }
 }

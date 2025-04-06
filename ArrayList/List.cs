@@ -78,7 +78,7 @@ public class List<T> : IList<T>
 
     public void TrimExcess()
     {
-        if ((double)Count / _items.Length <= 0.1)
+        if (Count * 10 <= _items.Length)
         {
             Capacity = Count;
         }
@@ -86,15 +86,7 @@ public class List<T> : IList<T>
 
     public int IndexOf(T item)
     {
-        for (int i = 0; i < Count; i++)
-        {
-            if ((item is null && _items[i] is null) || (item is not null && item.Equals(_items[i])))
-            {
-                return i;
-            }
-        }
-
-        return -1;
+        return Array.IndexOf(_items, item);
     }
 
     public void Insert(int index, T item)
@@ -153,7 +145,7 @@ public class List<T> : IList<T>
 
     public bool Contains(T item)
     {
-        return IndexOf(item) == -1;
+        return IndexOf(item) != -1;
     }
 
     public void CopyTo(T[] array, int arrayIndex)
@@ -170,13 +162,7 @@ public class List<T> : IList<T>
             throw new ArgumentException($"The number of elements in the source list ({Count}) must be less than or equal to available space from arrayIndex ({arrayIndex}) to the end of the destination array ({array.Length}).", nameof(array));
         }
 
-        int i = arrayIndex;
-
-        foreach (T item in this)
-        {
-            array[i] = item;
-            i++;
-        }
+        Array.Copy(_items, 0, array, arrayIndex, Count);
     }
 
     public bool Remove(T item)
@@ -227,7 +213,6 @@ public class List<T> : IList<T>
             stringBuilder.Append(item is null ? "null" : item).Append(", ");
         }
 
-
         stringBuilder.Length -= 2;
         stringBuilder.Append(']');
 
@@ -250,7 +235,7 @@ public class List<T> : IList<T>
 
         for (int i = 0; i < Count; i++)
         {
-            if ((_items[i] is null && list._items[i] is not null) || (_items[i] is not null && !_items[i]!.Equals(list._items[i])))
+            if (!Equals(_items[i], list._items[i]))
             {
                 return false;
             }
@@ -264,9 +249,9 @@ public class List<T> : IList<T>
         const int prime = 31;
         int hash = 1;
 
-        foreach (T item in _items)
+        for (int i = 0; i < Count; i++)
         {
-            hash = prime * hash + (item?.GetHashCode() ?? 0);
+            hash = prime * hash + (_items[i]?.GetHashCode() ?? 0);
         }
 
         return hash;
