@@ -35,12 +35,12 @@ public class SinglyLinkedList<T>
 
     public T GetFirst()
     {
-        if (Count == 0)
+        if (_head is null)
         {
             throw new InvalidOperationException("List is empty.");
         }
 
-        return _head!.Value;
+        return _head.Value;
     }
 
     private ListNode<T> GetNodeByIndex(int index)
@@ -65,22 +65,22 @@ public class SinglyLinkedList<T>
         }
 
         ListNode<T> previousNode = GetNodeByIndex(index - 1);
-        ListNode<T>? node = previousNode.Next!;
+        ListNode<T> node = previousNode.Next!;
 
         previousNode.Next = node.Next;
         Count--;
 
-        return node!.Value;
+        return node.Value;
     }
 
     public bool RemoveByValue(T value)
     {
-        if (Count == 0 || value is null)
+        if (_head is null || value is null)
         {
             return false;
         }
 
-        if (value.Equals(_head!.Value))
+        if (value.Equals(_head.Value))
         {
             RemoveFirst();
             return true;
@@ -88,7 +88,7 @@ public class SinglyLinkedList<T>
 
         ListNode<T> previousNode = _head;
 
-        for (ListNode<T>? node = _head.Next!; node != null; node = node.Next!)
+        for (ListNode<T>? node = _head.Next; node != null; node = node.Next)
         {
             if (node.Value!.Equals(value))
             {
@@ -106,12 +106,12 @@ public class SinglyLinkedList<T>
 
     public T RemoveFirst()
     {
-        if (Count == 0)
+        if (_head is null)
         {
             throw new InvalidOperationException("List is empty.");
         }
 
-        T oldValue = _head!.Value;
+        T oldValue = _head.Value;
         _head = _head.Next;
         Count--;
 
@@ -146,40 +146,40 @@ public class SinglyLinkedList<T>
     public void Reverse()
     {
         ListNode<T>? previousNode = null;
-        ListNode<T>? currentNode = _head!;
+        ListNode<T>? currentNode = _head;
 
         while (currentNode != null)
         {
-            ListNode<T>? nextNode = currentNode.Next!;
+            ListNode<T>? nextNode = currentNode.Next;
             currentNode.Next = previousNode;
 
             previousNode = currentNode;
             currentNode = nextNode!;
         }
 
-        _head = previousNode!;
+        _head = previousNode;
     }
 
     public SinglyLinkedList<T> Copy()
     {
         SinglyLinkedList<T> listCopy = new();
 
-        if (Count == 0)
+        if (_head is null)
         {
             return listCopy;
         }
 
-        listCopy._head = new(_head!.Value);
+        listCopy._head = new(_head.Value);
 
         ListNode<T>? previousCopyNode = listCopy._head;
         ListNode<T>? currentNode = _head.Next;
 
         while (currentNode != null)
         {
-            ListNode<T> newNode = new(currentNode.Value);
-            previousCopyNode.Next = newNode;
+            ListNode<T> newNodeCopy = new(currentNode.Value);
+            previousCopyNode.Next = newNodeCopy;
 
-            previousCopyNode = newNode;
+            previousCopyNode = newNodeCopy;
             currentNode = currentNode.Next;
         }
 
@@ -189,7 +189,7 @@ public class SinglyLinkedList<T>
 
     public override string ToString()
     {
-        if (Count == 0)
+        if (_head is null)
         {
             return "[]";
         }
