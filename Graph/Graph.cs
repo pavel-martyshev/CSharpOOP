@@ -2,146 +2,126 @@
 
 namespace GraphTask;
 
-internal class Graph<T>(List<T> vertices, int[,] edges)
+internal class Graph<T>
 {
-    public List<T> Vertices { get; } = vertices;
+    private readonly List<T> _vertices;
 
-    public int[,] Edges { get; } = edges;
+    private readonly int[,] _edges;
 
-    public int Count => Vertices.Count;
+    public int Count => _vertices.Count;
 
-    public string BreadthFirstTraversal()
+    public Graph(List<T> vertices, int[,] edges)
     {
-        if (Count == 0)
+        ArgumentNullException.ThrowIfNull(vertices, nameof(vertices));
+
+        ArgumentNullException.ThrowIfNull(edges, nameof(edges));
+
+        if (edges.GetLength(0) != edges.GetLength(1))
         {
-            return "[]";
+            throw new ArgumentException($"The matrix of edges ({edges.GetLength(0)}x{edges.GetLength(1)}) must be square.", nameof(edges));
         }
 
-        bool[] visited = new bool[Count];
-
-        StringBuilder stringBuilder = new();
-        stringBuilder.Append("[[");
-
-        Queue<T> queue = new();
-        queue.Enqueue(Vertices[0]);
-
-        while (queue.Count > 0)
+        if (vertices.Count != edges.GetLength(0))
         {
-            T vertex = queue.Dequeue();
-            stringBuilder.Append(vertex).Append(", ");
-
-            int vertexIndex = Vertices.IndexOf(vertex);
-            visited[vertexIndex] = true;
-
-            for (int i = 0; i < Count; i++)
-            {
-                if (Edges[vertexIndex, i] == 1 && !visited[i])
-                {
-                    queue.Enqueue(Vertices[i]);
-                }
-            }
-
-            if (queue.Count == 0 && visited.Contains(false))
-            {
-                stringBuilder.Length -= 2;
-                stringBuilder.Append("] [");
-                queue.Enqueue(Vertices[vertexIndex + 1]);
-            }
+            throw new ArgumentException($"The number of vertices ({vertices.Count}) must be equal to the number of rows and columns in the matrix ({edges.GetLength(0)}).", nameof(vertices));
         }
 
-        stringBuilder.Length -= 2;
-        stringBuilder.Append("]]");
-
-        return stringBuilder.ToString();
+        _edges = edges;
+        _vertices = vertices;
     }
 
-    private void RecursiveDepthTraversal(T vertex, StringBuilder stringBuilder, bool[] visited)
+    public void TraverseBreadthFirst(Action<T> action)
     {
-        stringBuilder.Append(vertex).Append(", ");
+        bool[] visited = new bool[Count];
 
-        int vertexIndex = Vertices.IndexOf(vertex);
-        visited[vertexIndex] = true;
+        Queue<int> queue = new();
 
         for (int i = 0; i < Count; i++)
         {
-            if (Edges[vertexIndex, i] == 1 && !visited[i])
+            if (visited[i])
             {
-                RecursiveDepthTraversal(Vertices[i], stringBuilder, visited);
+                continue;
             }
-        }
 
-        if (visited.Contains(false))
-        {
-            stringBuilder.Length -= 2;
-            stringBuilder.Append("] [");
+            queue.Enqueue(i);
 
-            RecursiveDepthTraversal(Vertices[vertexIndex + 1], stringBuilder, visited);
-        }
-    }
-
-    public string RecursiveDepthTraversal()
-    {
-        if (Count == 0)
-        {
-            return "[]";
-        }
-
-        bool[] visited = new bool[Count];
-
-        StringBuilder stringBuilder = new();
-        stringBuilder.Append("[[");
-
-        RecursiveDepthTraversal(Vertices[0], stringBuilder, visited);
-
-        stringBuilder.Length -= 2;
-        stringBuilder.Append("]]");
-
-        return stringBuilder.ToString();
-    }
-
-    public string DepthTraversal()
-    {
-        if (Count == 0)
-        {
-            return "[]";
-        }
-
-        bool[] visited = new bool[Count];
-
-        StringBuilder stringBuilder = new();
-        stringBuilder.Append("[[");
-
-        Stack<T> stack = new();
-        stack.Push(Vertices[0]);
-
-        while (stack.Count > 0)
-        {
-            T vertex = stack.Pop();
-
-            stringBuilder.Append(vertex).Append(", ");
-
-            int vertexIndex = Vertices.IndexOf(vertex);
-            visited[vertexIndex] = true;
-
-            for (int i = Count - 1; i > 0; i--)
+            while (queue.Count > 0)
             {
-                if (Edges[vertexIndex, i] == 1 && !visited[i])
+                int currentVertexIndex = queue.Dequeue();
+                visited[currentVertexIndex] = true;
+
+                action(_vertices[currentVertexIndex]);
+
+                for (int j = 0; j < Count; j++)
                 {
-                    stack.Push(Vertices[i]);
+                    if (_edges[currentVertexIndex, j] != 0 && !visited[j])
+                    {
+                        queue.Enqueue(j);
+                    }
                 }
             }
+        }
+    }
 
-            if (stack.Count == 0 && visited.Contains(false))
+    private void TraverseDepthFirstRecursive(int vertexIndex, Action<T> action, bool[] visited)
+    {
+        visited[vertexIndex] = true;
+        action(_vertices[vertexIndex]);
+
+        for (int i = 0; i < Count; i++)
+        {
+            if (_edges[vertexIndex, i] != 0 && !visited[i])
             {
-                stringBuilder.Length -= 2;
-                stringBuilder.Append("] [");
-                stack.Push(Vertices[vertexIndex + 1]);
+                TraverseDepthFirstRecursive(i, action, visited);
             }
         }
+    }
 
-        stringBuilder.Length -= 2;
-        stringBuilder.Append("]]");
+    public void TraverseDepthFirstRecursive(Action<T> action)
+    {
+        bool[] visited = new bool[Count];
 
-        return stringBuilder.ToString();
+        for (int i = 0; i < Count; i++)
+        {
+            if (visited[i])
+            {
+                continue;
+            }
+
+            TraverseDepthFirstRecursive(i, action, visited);
+        }
+    }
+
+    public void TraverseDepthFirst(Action<T> action)
+    {
+        bool[] visited = new bool[Count];
+
+        Stack<int> stack = new();
+
+        for (int i = 0; i < Count; i++)
+        {
+            if (visited[i])
+            {
+                continue;
+            }
+
+            stack.Push(i);
+
+            while (stack.Count > 0)
+            {
+                int currentVertexIndex = stack.Pop();
+                visited[currentVertexIndex] = true;
+
+                action(_vertices[currentVertexIndex]);
+
+                for (int j = Count - 1; j >= 0; j--)
+                {
+                    if (_edges[currentVertexIndex, j] != 0 && !visited[j])
+                    {
+                        stack.Push(j);
+                    }
+                }
+            }
+        }
     }
 }

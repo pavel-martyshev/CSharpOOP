@@ -19,8 +19,17 @@ internal class Program
 
         Graph<string> graph = new(vertices, edges);
 
-        Console.WriteLine(graph.BreadthFirstTraversal());
-        Console.WriteLine(graph.RecursiveDepthTraversal());
-        Console.WriteLine(graph.DepthTraversal());
+        Console.WriteLine("Breadth first traversal:");
+        graph.TraverseBreadthFirst(vertex => Console.WriteLine(vertex));
+
+        Console.WriteLine();
+
+        Console.WriteLine("Depth first traversal recursive:");
+        graph.TraverseDepthFirstRecursive(vertex => Console.WriteLine(vertex));
+
+        Console.WriteLine();
+
+        Console.WriteLine("Depth first traversal:");
+        graph.TraverseDepthFirst(vertex => Console.WriteLine(vertex));
     }
 }
