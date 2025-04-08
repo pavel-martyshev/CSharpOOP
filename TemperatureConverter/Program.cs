@@ -14,7 +14,7 @@ internal static partial class Program
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
 
-        TemperatureConversionController controller = new(new TemperatureConverterView());
+        ITemperatureConversionController controller = new TemperatureConversionController(new TemperatureConverterView());
 
         controller.Run();
     }
