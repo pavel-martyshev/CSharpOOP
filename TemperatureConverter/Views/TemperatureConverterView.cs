@@ -57,9 +57,9 @@ public partial class TemperatureConverterView : Form, ITemperatureConverterView
         InputTemperatureChanged!.Invoke(sender, e);
     }
 
-    public void SetConvertedTemperature(double value)
+    public void SetConvertedTemperature(string convertedTemperature)
     {
-        throw new NotImplementedException();
+        convertedTemperatureLabel.Text = convertedTemperature;
     }
 
     public void ShowError(string message)

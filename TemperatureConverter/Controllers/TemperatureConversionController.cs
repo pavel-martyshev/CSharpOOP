@@ -54,7 +54,7 @@ class TemperatureConversionController : ITemperatureConversionController
 
         double convertedTemperature = Math.Round(TemperatureConverter.Convert(double.Parse(inputText), fromScale, toScale), 2, MidpointRounding.AwayFromZero);
 
-        _view.convertedTemperatureLabel.Text = convertedTemperature.ToString();
+        _view.SetConvertedTemperature(convertedTemperature.ToString());
     }
 
     public void Run()

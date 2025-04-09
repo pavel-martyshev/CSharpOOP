@@ -5,7 +5,7 @@ internal interface ITemperatureConverterView
     event EventHandler InputScaleChanged;
     event EventHandler InputTemperatureChanged;
 
-    void SetConvertedTemperature(double value);
+    void SetConvertedTemperature(string convertedTemperature);
 
     void ShowError(string message);
 }
