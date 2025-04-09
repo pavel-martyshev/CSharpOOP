@@ -73,14 +73,14 @@ public class SinglyLinkedList<T>
         return node.Value;
     }
 
-    public bool RemoveByValue(T value)
+    public bool RemoveByValue(T? value)
     {
-        if (_head is null || value is null)
+        if (_head is null)
         {
             return false;
         }
 
-        if (value.Equals(_head.Value))
+        if (Equals(value, _head.Value))
         {
             RemoveFirst();
             return true;
@@ -90,7 +90,7 @@ public class SinglyLinkedList<T>
 
         for (ListNode<T>? node = _head.Next; node != null; node = node.Next)
         {
-            if (node.Value!.Equals(value))
+            if (Equals(value, node.Value))
             {
                 previousNode.Next = node.Next;
                 Count--;
@@ -176,10 +176,10 @@ public class SinglyLinkedList<T>
 
         while (currentNode != null)
         {
-            ListNode<T> newNodeCopy = new(currentNode.Value);
-            previousCopyNode.Next = newNodeCopy;
+            ListNode<T> copyNewNode = new(currentNode.Value);
+            previousCopyNode.Next = copyNewNode;
 
-            previousCopyNode = newNodeCopy;
+            previousCopyNode = copyNewNode;
             currentNode = currentNode.Next;
         }
 
