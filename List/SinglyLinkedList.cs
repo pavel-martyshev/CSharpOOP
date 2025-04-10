@@ -73,14 +73,14 @@ public class SinglyLinkedList<T>
         return node.Value;
     }
 
-    public bool RemoveByValue(T? value)
+    public bool RemoveByValue(T value)
     {
         if (_head is null)
         {
             return false;
         }
 
-        if (Equals(value, _head.Value))
+        if (EqualityComparer<T>.Default.Equals(value, _head.Value))
         {
             RemoveFirst();
             return true;
@@ -88,9 +88,9 @@ public class SinglyLinkedList<T>
 
         ListNode<T> previousNode = _head;
 
-        for (ListNode<T>? node = _head.Next; node != null; node = node.Next)
+        for (ListNode<T>? node = _head.Next; node is not null; node = node.Next)
         {
-            if (Equals(value, node.Value))
+            if (EqualityComparer<T>.Default.Equals(value, node.Value))
             {
                 previousNode.Next = node.Next;
                 Count--;
