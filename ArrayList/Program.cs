@@ -17,9 +17,9 @@ internal class Program
         Console.WriteLine($"Its count: {numbers.Count}");
         Console.WriteLine();
 
-        foreach (int item in numbers)
+        foreach (int number in numbers)
         {
-            Console.WriteLine(item);
+            Console.WriteLine(number);
         }
     }
 }

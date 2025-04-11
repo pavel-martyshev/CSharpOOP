@@ -78,7 +78,7 @@ public class List<T> : IList<T>
 
     public void TrimExcess()
     {
-        if (Count * 10 <= _items.Length)
+        if (Count < (int)(_items.Length * 0.9))
         {
             Capacity = Count;
         }
@@ -86,7 +86,7 @@ public class List<T> : IList<T>
 
     public int IndexOf(T item)
     {
-        return Array.IndexOf(_items, item);
+        return Array.IndexOf(_items, item, Count);
     }
 
     public void Insert(int index, T item)
