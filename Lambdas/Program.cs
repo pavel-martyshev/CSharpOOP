@@ -19,14 +19,14 @@ internal class Program
         return persons.Average(p => p.Age);
     }
 
-    public static Dictionary<string, double> GetNameToAverageAgeMap(List<Person> pesons)
+    public static Dictionary<string, double> GetNameToAverageAgeMap(List<Person> persons)
     {
-        return pesons
+        return persons
             .GroupBy(p => p.Name)
-            .ToDictionary(group => group.Key, group => group.Average(p => p.Age));
+            .ToDictionary(g => g.Key, g => g.Average(p => p.Age));
     }
 
-    public static List<Person> GetPeopleInAgeRangeDescending(List<Person> persons, int minAge, int maxAge)
+    public static List<Person> GetPersonsInAgeRangeDescending(List<Person> persons, int minAge, int maxAge)
     {
         return persons
             .Where(p => p.Age >= minAge && p.Age <= maxAge)
@@ -88,16 +88,16 @@ internal class Program
 
         Console.WriteLine("Names to average age:");
 
-        foreach (var adultPerson in GetNameToAverageAgeMap(persons))
+        foreach (var dictItems in GetNameToAverageAgeMap(persons))
         {
-            Console.WriteLine($"Name = {adultPerson.Key}, average age = {adultPerson.Value}");
+            Console.WriteLine($"Name = {dictItems.Key}, average age = {dictItems.Value}");
         }
 
         Console.WriteLine();
 
         Console.WriteLine("People in the age range from 20 to 45 in descending order:");
 
-        foreach (var person in GetPeopleInAgeRangeDescending(persons, 20, 45))
+        foreach (var person in GetPersonsInAgeRangeDescending(persons, 20, 45))
         {
             Console.WriteLine(person);
         }
@@ -110,9 +110,9 @@ internal class Program
         Console.WriteLine();
 
         Console.Write($"Enter the count of elements in the sequence to print{Environment.NewLine}> ");
-        var elementsToPrint = int.Parse(Console.ReadLine()!);
+        var fibonacciNumbersCount = int.Parse(Console.ReadLine()!);
 
-        foreach (var number in GetFibonacciNumbersSequence().Take(elementsToPrint))
+        foreach (var number in GetFibonacciNumbersSequence().Take(fibonacciNumbersCount))
         {
             Console.WriteLine(number);
         }
