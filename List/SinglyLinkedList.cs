@@ -80,7 +80,7 @@ public class SinglyLinkedList<T>
             return false;
         }
 
-        if (EqualityComparer<T>.Default.Equals(value, _head.Value))
+        if (Equals(value, _head.Value))
         {
             RemoveFirst();
             return true;
@@ -90,7 +90,7 @@ public class SinglyLinkedList<T>
 
         for (ListNode<T>? node = _head.Next; node is not null; node = node.Next)
         {
-            if (EqualityComparer<T>.Default.Equals(value, node.Value))
+            if (Equals(value, node.Value))
             {
                 previousNode.Next = node.Next;
                 Count--;
