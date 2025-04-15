@@ -19,7 +19,7 @@ internal class Program
         return persons.Average(p => p.Age);
     }
 
-    public static Dictionary<string, double> GetNameToAverageAgeMap(List<Person> persons)
+    public static Dictionary<string, double> GetNameToAverageAgeDictionary(List<Person> persons)
     {
         return persons
             .GroupBy(p => p.Name)
@@ -88,9 +88,9 @@ internal class Program
 
         Console.WriteLine("Names to average age:");
 
-        foreach (var dictItems in GetNameToAverageAgeMap(persons))
+        foreach (var pair in GetNameToAverageAgeDictionary(persons))
         {
-            Console.WriteLine($"Name = {dictItems.Key}, average age = {dictItems.Value}");
+            Console.WriteLine($"Name = {pair.Key}, average age = {pair.Value}");
         }
 
         Console.WriteLine();
