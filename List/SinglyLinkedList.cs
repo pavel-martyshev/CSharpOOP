@@ -73,14 +73,14 @@ public class SinglyLinkedList<T>
         return node.Value;
     }
 
-    public bool RemoveByValue(T value)
+    public bool RemoveByValue(T targetValue)
     {
         if (_head is null)
         {
             return false;
         }
 
-        if (Equals(value, _head.Value))
+        if (Equals(targetValue, _head.Value))
         {
             RemoveFirst();
             return true;
@@ -90,7 +90,7 @@ public class SinglyLinkedList<T>
 
         for (ListNode<T>? node = _head.Next; node is not null; node = node.Next)
         {
-            if (Equals(value, node.Value))
+            if (Equals(targetValue, node.Value))
             {
                 previousNode.Next = node.Next;
                 Count--;
