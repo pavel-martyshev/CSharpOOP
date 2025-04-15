@@ -41,11 +41,11 @@ internal class Program
 
         while (true)
         {
+            yield return fibonacciNumber;
+
             long previousFibonacciNumber = fibonacciNumber;
             fibonacciNumber = nextFibonacciNumber;
             nextFibonacciNumber = previousFibonacciNumber + fibonacciNumber;
-
-            yield return fibonacciNumber;
         }
     }
 
