@@ -13,7 +13,6 @@ internal class Graph<T>
     public Graph(List<T> vertices, int[,] edges)
     {
         ArgumentNullException.ThrowIfNull(vertices, nameof(vertices));
-
         ArgumentNullException.ThrowIfNull(edges, nameof(edges));
 
         if (edges.GetLength(0) != edges.GetLength(1))
@@ -32,6 +31,8 @@ internal class Graph<T>
 
     public void TraverseBreadthFirst(Action<T> action)
     {
+        ArgumentNullException.ThrowIfNull(action, nameof(action));
+
         bool[] visited = new bool[Count];
 
         Queue<int> queue = new();
@@ -52,7 +53,7 @@ internal class Graph<T>
 
                 action(_vertices[currentVertexIndex]);
 
-                for (int j = 0; j < Count; j++)
+                for (int j = currentVertexIndex; j < Count; j++)
                 {
                     if (_edges[currentVertexIndex, j] != 0 && !visited[j])
                     {
@@ -79,6 +80,8 @@ internal class Graph<T>
 
     public void TraverseDepthFirstRecursive(Action<T> action)
     {
+        ArgumentNullException.ThrowIfNull(action, nameof(action));
+
         bool[] visited = new bool[Count];
 
         for (int i = 0; i < Count; i++)
@@ -94,6 +97,8 @@ internal class Graph<T>
 
     public void TraverseDepthFirst(Action<T> action)
     {
+        ArgumentNullException.ThrowIfNull(action, nameof(action));
+
         bool[] visited = new bool[Count];
 
         Stack<int> stack = new();
