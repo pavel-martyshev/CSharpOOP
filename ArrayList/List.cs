@@ -78,7 +78,7 @@ public class List<T> : IList<T>
 
     public void TrimExcess()
     {
-        if (Count <= (_items.Length * 0.9))
+        if (Count <= _items.Length * 0.9)
         {
             Capacity = Count;
         }
