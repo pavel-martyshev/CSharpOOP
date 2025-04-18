@@ -4,8 +4,9 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        Tree<int> tree = new(new TreeNode<int>(8));
+        BinarySearchTree<int> tree = new();
 
+        tree.Add(8);
         tree.Add(3);
         tree.Add(1);
         tree.Add(10);
