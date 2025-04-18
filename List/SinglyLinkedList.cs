@@ -176,10 +176,10 @@ public class SinglyLinkedList<T>
 
         while (currentNode != null)
         {
-            ListNode<T> newNodeCopy = new(currentNode.Value);
-            previousCopyNode.Next = newNodeCopy;
+            ListNode<T> newCopyNode = new(currentNode.Value);
+            previousCopyNode.Next = newCopyNode;
 
-            previousCopyNode = newNodeCopy;
+            previousCopyNode = newCopyNode;
             currentNode = currentNode.Next;
         }
 
