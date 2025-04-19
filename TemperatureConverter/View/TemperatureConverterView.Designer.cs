@@ -53,6 +53,7 @@ partial class TemperatureConverterView
         // 
         inputScalesComboBox.BackColor = Color.FromArgb(27, 26, 32);
         inputScalesComboBox.DisplayMember = "Value";
+        inputScalesComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
         inputScalesComboBox.FlatStyle = FlatStyle.Flat;
         inputScalesComboBox.Font = new Font("Arial", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
         inputScalesComboBox.ForeColor = Color.FromArgb(230, 230, 230);
@@ -103,6 +104,7 @@ partial class TemperatureConverterView
         // 
         conversionScalesComboBox.BackColor = Color.FromArgb(27, 26, 32);
         conversionScalesComboBox.DisplayMember = "Value";
+        conversionScalesComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
         conversionScalesComboBox.FlatStyle = FlatStyle.Flat;
         conversionScalesComboBox.Font = new Font("Arial", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
         conversionScalesComboBox.ForeColor = Color.FromArgb(230, 230, 230);

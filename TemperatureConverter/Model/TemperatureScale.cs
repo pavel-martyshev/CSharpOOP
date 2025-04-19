@@ -1,4 +1,4 @@
-﻿namespace TemperatureConverterTask.Models;
+﻿namespace TemperatureConverterTask.Model;
 
 public enum TemperatureScale
 {

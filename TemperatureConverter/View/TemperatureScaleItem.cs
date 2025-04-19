@@ -1,6 +1,6 @@
-﻿using TemperatureConverterTask.Models;
+﻿using TemperatureConverterTask.Model;
 
-namespace TemperatureConverterTask.Views;
+namespace TemperatureConverterTask.View;
 
 public class TemperatureScaleItem(TemperatureScale scale, string displayName)
 {
