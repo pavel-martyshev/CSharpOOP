@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace GraphTask;
+﻿namespace GraphTask;
 
 internal class Graph<T>
 {
@@ -45,19 +43,20 @@ internal class Graph<T>
             }
 
             queue.Enqueue(i);
+            visited[i] = true;
 
             while (queue.Count > 0)
             {
                 int currentVertexIndex = queue.Dequeue();
-                visited[currentVertexIndex] = true;
 
                 action(_vertices[currentVertexIndex]);
 
-                for (int j = currentVertexIndex; j < Count; j++)
+                for (int j = 0; j < Count; j++)
                 {
                     if (_edges[currentVertexIndex, j] != 0 && !visited[j])
                     {
                         queue.Enqueue(j);
+                        visited[j] = true;
                     }
                 }
             }
@@ -111,11 +110,11 @@ internal class Graph<T>
             }
 
             stack.Push(i);
+            visited[i] = true;
 
             while (stack.Count > 0)
             {
                 int currentVertexIndex = stack.Pop();
-                visited[currentVertexIndex] = true;
 
                 action(_vertices[currentVertexIndex]);
 
@@ -124,6 +123,7 @@ internal class Graph<T>
                     if (_edges[currentVertexIndex, j] != 0 && !visited[j])
                     {
                         stack.Push(j);
+                        visited[j] = true;
                     }
                 }
             }
