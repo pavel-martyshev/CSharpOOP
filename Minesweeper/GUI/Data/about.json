@@ -1,0 +1,13 @@
+{
+  "About": {
+    "GameName": "Minesweeper",
+    "Version": "0.0.1",
+    "Author": "Martyshev Pavel",
+    "ReleaseDate": "01.06.2030",
+    "Technologies": [
+      ".NET",
+      "WinForms"
+    ],
+    "Thanks": "Academ IT School"
+  }
+}
