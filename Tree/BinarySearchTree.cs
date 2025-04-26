@@ -25,8 +25,6 @@ public class BinarySearchTree<T>
         }
 
         return Comparer<T>.Default.Compare(value1, value2);
-
-        throw new InvalidOperationException($"Type {typeof(T)} must implement IComparable or a custom IComparer<T> must be provided.");
     }
 
     public void Add(T value)
@@ -52,7 +50,7 @@ public class BinarySearchTree<T>
                 }
                 else
                 {
-                    node.Left = new(value, node);
+                    node.Left = new(value);
                     break;
                 }
             }
@@ -64,7 +62,7 @@ public class BinarySearchTree<T>
                 }
                 else
                 {
-                    node.Right = new(value, node);
+                    node.Right = new(value);
                     break;
                 }
             }
@@ -109,19 +107,7 @@ public class BinarySearchTree<T>
 
     public bool Contains(T value)
     {
-        return GetNode(value) is null;
-    }
-
-    private static void ReplaceParentChild(TreeNode<T> parent, TreeNode<T> child, TreeNode<T>? newChild)
-    {
-        if (ReferenceEquals(parent.Left, child))
-        {
-            parent.Left = newChild;
-        }
-        else if (ReferenceEquals(parent.Right, child))
-        {
-            parent.Right = newChild;
-        }
+        return GetNode(value) is not null;
     }
 
     private void ReplaceNode(TreeNode<T>? parent, TreeNode<T> node, TreeNode<T>? newNode)
@@ -132,7 +118,14 @@ public class BinarySearchTree<T>
         }
         else
         {
-            ReplaceParentChild(parent, node, newNode);
+            if (ReferenceEquals(parent.Left, node))
+            {
+                parent.Left = newNode;
+            }
+            else
+            {
+                parent.Right = newNode;
+            }
         }
     }
 
@@ -164,36 +157,46 @@ public class BinarySearchTree<T>
 
     public bool Remove(T value)
     {
-        if (_root is null)
+        TreeNode<T>? parent = null;
+        TreeNode<T>? node = _root;
+
+        while (node is not null)
         {
-            return false;
+            int comparisonResult = CompareTo(value, node.Value);
+
+            if (comparisonResult == 0)
+            {
+                if (node.IsLeaf)
+                {
+                    ReplaceNode(parent, node, null);
+                }
+                else if (node.HasTwoChildren)
+                {
+                    RemoveNodeWithTwoChildren(parent, node);
+                }
+                else
+                {
+                    TreeNode<T>? newNode = node.Left is not null ? node.Left : node.Right;
+                    ReplaceNode(parent, node, newNode);
+                }
+
+                Count--;
+                return true;
+            }
+
+            parent = node;
+
+            if (comparisonResult < 0)
+            {
+                node = node.Left;
+            }
+            else
+            {
+                node = node.Right;
+            }
         }
 
-        TreeNode<T>? node = GetNode(value);
-
-        if (node is null)
-        {
-            return false;
-        }
-
-        TreeNode<T>? parent = node.Parent;
-
-        if (node.IsLeaf)
-        {
-            ReplaceNode(parent, node, null);
-        }
-        else if (node.HasTwoChildren)
-        {
-            RemoveNodeWithTwoChildren(parent, node);
-        }
-        else
-        {
-            TreeNode<T>? nextNode = node.Left is not null ? node.Left : node.Right;
-            ReplaceNode(parent, node, nextNode);
-        }
-
-        Count--;
-        return true;
+        return false;
     }
 
     public void TraverseBreadthFirst(Action<T> action)
@@ -234,7 +237,6 @@ public class BinarySearchTree<T>
         action(node.Value);
 
         TraverseDepthFirstRecursive(node.Left, action);
-
         TraverseDepthFirstRecursive(node.Right, action);
     }
 

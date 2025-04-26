@@ -1,21 +1,8 @@
 ﻿namespace TreeTask;
 
-public class TreeNode<T>
+public class TreeNode<T>(T value)
 {
-    public T Value { get; set; }
-
-    public TreeNode<T>? Parent { get; set; }
-
-    public TreeNode(T data)
-    {
-        Value = data;
-    }
-
-    public TreeNode(T data, TreeNode<T> parent)
-    {
-        Value = data;
-        Parent = parent;
-    }
+    public T Value { get; set; } = value;
 
     public TreeNode<T>? Left { get; set; }
 
