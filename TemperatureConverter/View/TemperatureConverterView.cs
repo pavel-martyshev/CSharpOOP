@@ -7,7 +7,7 @@ namespace TemperatureConverterTask;
 public partial class TemperatureConverterView : Form, ITemperatureConverterView
 {
     public event Action<object>? InputScaleChanged;
-    public event Action<double>? InputTemperatureChanged;
+    public event Action<double>? TemperatureConversionRequest;
 
     public TemperatureConverterView()
     {
@@ -19,12 +19,12 @@ public partial class TemperatureConverterView : Form, ITemperatureConverterView
 
     private static List<TemperatureScaleItem> ConvertScalesToTemperatureScaleItems(Dictionary<TemperatureScale, string> scales)
     {
-        return scales.Select(kvp => new TemperatureScaleItem(kvp.Key, kvp.Value!)).ToList();
+        return scales.Select(kvp => new TemperatureScaleItem(kvp.Key, kvp.Value)).ToList();
     }
 
-    public void InitComboBoxesData(Dictionary<TemperatureScale, string> scales)
+    public void InitData(Dictionary<TemperatureScale, string> scales)
     {
-        List<TemperatureScaleItem> temperatureScaleItems = ConvertScalesToTemperatureScaleItems(scales);
+        var temperatureScaleItems = ConvertScalesToTemperatureScaleItems(scales);
 
         inputScalesComboBox.DataSource = temperatureScaleItems;
         inputScalesComboBox.DisplayMember = "DisplayName";
@@ -35,7 +35,7 @@ public partial class TemperatureConverterView : Form, ITemperatureConverterView
         conversionScalesComboBox.ValueMember = "Scale";
     }
 
-    public void SetConversionScalesComboBoxData(Dictionary<TemperatureScale, string> scales)
+    public void SetConversionScalesData(Dictionary<TemperatureScale, string> scales)
     {
         conversionScalesComboBox.DataSource = ConvertScalesToTemperatureScaleItems(scales);
         conversionScalesComboBox.DisplayMember = "DisplayName";
@@ -47,7 +47,7 @@ public partial class TemperatureConverterView : Form, ITemperatureConverterView
         inputTemperatureTextBox.Focus();
         inputTemperatureTextBox.SelectionStart = inputTemperatureTextBox.Text.Length;
 
-        InputScaleChanged!(inputScalesComboBox.SelectedValue!);
+        InputScaleChanged?.Invoke(inputScalesComboBox.SelectedValue!);
 
         InputTemperatureTextBox_TextChanged(inputTemperatureTextBox, e);
     }
@@ -57,12 +57,15 @@ public partial class TemperatureConverterView : Form, ITemperatureConverterView
         inputTemperatureTextBox.Focus();
         inputTemperatureTextBox.SelectionStart = inputTemperatureTextBox.Text.Length;
 
-        InputTemperatureTextBox_TextChanged(inputTemperatureTextBox, e);
+        if (inputTemperatureTextBox.Text != "")
+        {
+            TemperatureConversionRequest?.Invoke(double.Parse(inputTemperatureTextBox.Text));
+        }
     }
 
     private void InputTemperatureTextBox_TextChanged(object sender, EventArgs e)
     {
-        string inputText = inputTemperatureTextBox.Text.Replace('.', ',').Trim();
+        var inputText = inputTemperatureTextBox.Text.Replace('.', ',').Trim();
 
         if (!Regex.IsMatch(inputText, @"^-?\d*,?\d*$"))
         {
@@ -80,17 +83,17 @@ public partial class TemperatureConverterView : Form, ITemperatureConverterView
             return;
         }
 
-        InputTemperatureChanged!(double.Parse(inputText));
+        TemperatureConversionRequest?.Invoke(double.Parse(inputText));
     }
 
-    public object GetInputScaleValue()
+    public TemperatureScale GetInputScaleValue()
     {
-        return inputScalesComboBox.SelectedValue!;
+        return (TemperatureScale)inputScalesComboBox.SelectedValue!;
     }
 
-    public object GetConversionScaleValue()
+    public TemperatureScale GetConversionScaleValue()
     {
-        return conversionScalesComboBox.SelectedValue!;
+        return (TemperatureScale)conversionScalesComboBox.SelectedValue!;
     }
 
     public void SetConvertedTemperature(double convertedTemperature)

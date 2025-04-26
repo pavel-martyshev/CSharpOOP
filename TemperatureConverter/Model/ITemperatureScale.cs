@@ -6,7 +6,7 @@ public interface ITemperatureScale
 
     string Symbol { get; }
 
-    double ToCelsius(double temperature);
+    double ConvertToCelsius(double temperature);
 
-    double FromCelsius(double temperature);
+    double ConvertFromCelsius(double temperature);
 }

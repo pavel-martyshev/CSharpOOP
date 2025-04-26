@@ -2,9 +2,9 @@
 
 internal interface ITemperatureConversionController
 {
-    public void OnInputScaleChanged(object selectedScale);
+    void OnInputScaleChanged(object selectedScale);
 
-    public void OnInputTemperatureChanged(double inputTemperature);
+    void GetConvertedTemperature(double inputTemperature);
 
-    public void Run();
+    void Run();
 }

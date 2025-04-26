@@ -1,5 +1,5 @@
-using System.Runtime.InteropServices;
 using TemperatureConverterTask.Controller;
+using TemperatureConverterTask.Model;
 
 namespace TemperatureConverterTask;
 
@@ -14,18 +14,10 @@ internal static partial class Program
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
 
-#if DEBUG
-        AllocConsole();
-        Console.WriteLine("App started!");
-#endif
-
         ApplicationConfiguration.Initialize();
 
-        ITemperatureConversionController controller = new TemperatureConversionController(new TemperatureConverterView());
+        var controller = new TemperatureConversionController(new TemperatureConverterView(), new TemperatureScaleRegistry());
 
         controller.Run();
     }
-
-    [DllImport("kernel32.dll")]
-    private static extern bool AllocConsole();
 }

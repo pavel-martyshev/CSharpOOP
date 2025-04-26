@@ -6,36 +6,37 @@ class TemperatureConversionController : ITemperatureConversionController
 {
     private readonly TemperatureConverterView _view;
 
-    private readonly Dictionary<TemperatureScale, ITemperatureScale> _scales = new()
-    {
-        { TemperatureScale.Celsius, new Celsius() },
-        { TemperatureScale.Fahrenheit, new Fahrenheit() },
-        { TemperatureScale.Kelvin, new Kelvin() },
-    };
+    private readonly TemperatureScaleRegistry _temperatureScaleRegistry;
 
-    public TemperatureConversionController(TemperatureConverterView view)
+    public TemperatureConversionController(TemperatureConverterView view, TemperatureScaleRegistry temperatureScaleRegistry)
     {
         _view = view;
+        _temperatureScaleRegistry = temperatureScaleRegistry;
 
         _view.InputScaleChanged += OnInputScaleChanged;
-        _view.InputTemperatureChanged += OnInputTemperatureChanged;
+        _view.TemperatureConversionRequest += GetConvertedTemperature;
 
-        _view.InitComboBoxesData(_scales.Select(kvp => new KeyValuePair<TemperatureScale, string>(kvp.Key, kvp.Value.ToString()!)).ToDictionary());
+        _view.InitData(_temperatureScaleRegistry.Scales.Select(kvp => new KeyValuePair<TemperatureScale, string>(kvp.Key, kvp.Value.ToString()!)).ToDictionary());
     }
 
     public void OnInputScaleChanged(object selectedScale)
     {
-        _view.SetConversionScalesComboBoxData(_scales
+        _view.SetConversionScalesData(_temperatureScaleRegistry.Scales
             .Select(kvp => new KeyValuePair<TemperatureScale, string>(kvp.Key, kvp.Value.ToString()!))
             .Where(kvp => kvp.Key != (TemperatureScale)selectedScale).ToDictionary());
     }
 
-    public void OnInputTemperatureChanged(double inputTemperature)
+    public void GetConvertedTemperature(double inputTemperature)
     {
-        TemperatureScale fromScale = (TemperatureScale)_view.GetInputScaleValue();
-        TemperatureScale toScale = (TemperatureScale)_view.GetConversionScaleValue();
+        var fromScale = _view.GetInputScaleValue();
+        var toScale = _view.GetConversionScaleValue();
 
-        double convertedTemperature = TemperatureConverter.Convert(inputTemperature, _scales[fromScale], _scales[toScale]);
+        var convertedTemperature = TemperatureConverter.Convert(inputTemperature, _temperatureScaleRegistry[fromScale], _temperatureScaleRegistry[toScale]);
+
+        if (convertedTemperature == -0)
+        {
+            convertedTemperature = 0;
+        }
 
         _view.SetConvertedTemperature(convertedTemperature);
     }

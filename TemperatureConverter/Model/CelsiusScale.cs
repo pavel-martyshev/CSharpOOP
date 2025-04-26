@@ -1,14 +1,14 @@
 ﻿namespace TemperatureConverterTask.Model;
 
-internal class Celsius : ITemperatureScale
+internal class CelsiusScale : ITemperatureScale
 {
     public string Name => "Цельсий";
 
     public string Symbol => "°C";
 
-    public double FromCelsius(double temperature) => temperature;
+    public double ConvertFromCelsius(double temperature) => temperature;
 
-    public double ToCelsius(double temperature) => temperature;
+    public double ConvertToCelsius(double temperature) => temperature;
 
     public override string ToString() => $"{Name} {Symbol}";
 }
