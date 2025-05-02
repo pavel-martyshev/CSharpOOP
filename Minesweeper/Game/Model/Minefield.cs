@@ -282,12 +282,14 @@ internal class MineField : IMineField
             );
         }
 
+        var cell = _cells[row, column];
+
         return (
-            _cells![row, column].IsRevealed,
-            _cells[row, column].IsFlagged,
-            _cells[row, column].IsMine,
-            _cells[row, column].IsDeathPlace,
-            _cells[row, column].NeighborMinesCount
+            cell.IsRevealed,
+            cell.IsFlagged,
+            cell.IsMine,
+            cell.IsDeathPlace,
+            cell.NeighborMinesCount
         );
     }
 
