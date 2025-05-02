@@ -10,8 +10,6 @@ internal interface IMinesweeperView
 
     int PlayingFieldColumnsCount { get; }
 
-    int ElapsedSeconds { get; }
-
     bool IsGameOver { get; }
 
     event Func<int, int, (bool IsRevealed, bool IsFlagged, bool IsMine, bool IsDeathPlace, int NeighborMinesCount)>? RequestCellState;
@@ -26,15 +24,18 @@ internal interface IMinesweeperView
     event Func<string>? RequestAboutInfo;
     event Func<string>? RequestRecordsString;
 
+    event Action? TimerStopRequest;
+    event Action<int, int>? OnCellMiddleClick;
+
     void RedrawCell(int row, int column);
 
     void InvalidatePlayingField();
 
     void SetMinesCount(int count);
 
-    void StartTimer();
+    void SetElapsedSeconds(int elapsedSecond);
 
     void SetGameOver();
 
-    void SetVictory();
+    void SetVictory(int elapsedSeconds);
 }

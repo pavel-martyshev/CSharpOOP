@@ -1,6 +1,6 @@
 ﻿namespace Minesweeper.Core.Interfaces;
 
-internal interface IMinefield
+internal interface IMineField
 {
     int RowsCount { get; }
 
@@ -8,13 +8,21 @@ internal interface IMinefield
 
     int Size { get; }
 
-    int FlagsPlaced { get; }
+    int FlagsPlacedCount { get; }
+
+    bool IsGenerated { get; }
 
     event Action? AllSafeCellsRevealed;
 
-    void GenerateNewMineField(int rowsCount, int columnsCount);
+    event Action? OnMineStepped;
+
+    void GenerateNewMineField(int rowsCount, int columnsCount, int safeCellRow, int safeCellColumn);
+
+    void ResetMineField();
 
     void RevealChainReaction(int rowsCount, int columnsCount);
+
+    void RevealFlaggedCellNeighbors(int row, int column);
 
     void SetDeathPlace(int row, int column);
 
@@ -27,4 +35,6 @@ internal interface IMinefield
     bool IsRevealed(int row, int column);
 
     bool IsMine(int row, int column);
+
+    bool IsFlagged(int row, int column);
 }

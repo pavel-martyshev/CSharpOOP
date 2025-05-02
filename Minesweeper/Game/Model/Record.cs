@@ -24,14 +24,12 @@ internal class Record
     {
         StringBuilder stringBuilder = new();
 
-        stringBuilder
-            .Append(PlayerName)
-            .Append(Environment.NewLine)
-            .Append(TimeSeconds)
-            .Append(Environment.NewLine)
-            .Append(Difficulty)
-            .Append(Environment.NewLine);
-        
+        stringBuilder.AppendLine(
+            PlayerName + Environment.NewLine +
+            TimeSeconds + Environment.NewLine +
+            Difficulty + Environment.NewLine
+        );
+
         return stringBuilder.ToString();
     }
 }

@@ -6,26 +6,19 @@ namespace Minesweeper;
 
 internal static class Program
 {
-    /// <summary>
-    ///  The main entry point for the application.
-    /// </summary>
     [STAThread]
     static void Main()
     {
-        // To customize application configuration such as set high DPI settings or default font,
-        // see https://aka.ms/applicationconfiguration.
-
-#if DEBUG
-        AllocConsole();
-        Console.WriteLine("App started!");
-#endif
-
         ApplicationConfiguration.Initialize();
 
-        IPresenter presenter = new Presenter.Presenter(new GameWindow(), new Minefield());
-        presenter.Run();
+        IMinesweeperView view = new GameWindow();
+
+        IRecordsPresenter recordsPresenter = new Presenter.RecordsPresenter(view);
+
+        IGamePresenter gamePresenter = new Presenter.GamePresenter(view, new MineField(), new GameTimer());
+        gamePresenter.Run();
     }
 
-    [DllImport("kernel32.dll")] 
-    private static extern bool AllocConsole();
+    //[DllImport("kernel32.dll")]
+    //private static extern bool AllocConsole();
 }

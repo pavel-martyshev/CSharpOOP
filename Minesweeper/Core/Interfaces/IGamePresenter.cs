@@ -2,7 +2,7 @@
 
 namespace Minesweeper.Core.Interfaces;
 
-internal interface IPresenter
+internal interface IGamePresenter
 {
     (bool IsRevealed, bool IsFlagged, bool IsMine, bool IsDeathPlace, int NeighborMinesCount) GetCellState(int row, int column);
 
@@ -10,17 +10,19 @@ internal interface IPresenter
 
     void OnCellRightClickHandler(int row, int column);
 
+    void OnCellMiddleClickHandler(int row, int column);
+
+    void OnMineSteppedHandler();
+
     void DifficultyChangeHandler(int newRowsCount, int newColumnsCount);
 
     void AllSafeRevealedCellsHandler();
 
-    string GetRecordsString();
+    void OnTimerTick(int elapsedSeconds);
 
     void Restart();
 
     string GetAboutInfo();
-
-    void SaveRecord((string, int, Difficulty) recordInfo);
 
     void Run();
 }

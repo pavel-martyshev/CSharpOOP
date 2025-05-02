@@ -13,8 +13,6 @@ public partial class GameWindow : Form, IMinesweeperView
 
     public int PlayingFieldColumnsCount { get; private set; } = 9;
 
-    public int ElapsedSeconds { get; private set; }
-
     public bool IsGameOver { get; private set; }
 
     private int PlayingFieldWidth => CellSideBaseSize * PlayingFieldColumnsCount;
@@ -33,6 +31,9 @@ public partial class GameWindow : Form, IMinesweeperView
     public event Func<string>? RequestAboutInfo;
     public event Func<string>? RequestRecordsString;
 
+    public event Action? TimerStopRequest;
+    public event Action<int, int>? OnCellMiddleClick;
+
     private static readonly string _basePath = Path.Combine("..", "..", "..", "GUI", "Data");
 
     private readonly string _flagImagePath = Path.Combine(_basePath, "Flag.png");
@@ -50,8 +51,6 @@ public partial class GameWindow : Form, IMinesweeperView
     private readonly string _happySmileImagePath = Path.Combine(_basePath, "Happy.png");
     private readonly Image _happySmileImage;
 
-    private readonly System.Windows.Forms.Timer _timer = new();
-
     private AboutForm? aboutForm;
 
     public GameWindow()
@@ -67,13 +66,14 @@ public partial class GameWindow : Form, IMinesweeperView
         _deadSmileImage = Image.FromFile(_deadSmileImagePath);
         _happySmileImage = Image.FromFile(_happySmileImagePath);
 
-        _timer.Tick += Timer_Tick;
-
         SettingFields();
     }
 
     private void SettingFields()
     {
+        // Enable double buffering
+        typeof(Panel).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.SetValue(playingField, true, null);
+
         SettingGameWindow();
 
         SettingGameSettingsMenu();
@@ -106,13 +106,19 @@ public partial class GameWindow : Form, IMinesweeperView
         timerLabel.Location = new Point(infoBar.Width - timerLabel.Width - 10, 5);
 
         resetButton.Location = new Point(infoBar.Width / 2 - resetButton.Width / 2, 5);
-
-        _timer.Interval = 1000;
     }
 
     private void SettingPlayingField()
     {
         playingField.Size = new Size(PlayingFieldWidth + 4, PlayingFieldHeight + 4);
+    }
+
+    private static void ValidateDelegates(Delegate? callback, string name)
+    {
+        if (callback is null)
+        {
+            throw new InvalidOperationException($"{name} delegate is not assigned.");
+        }
     }
 
     private static Brush GetBrushForNumber(int number)
@@ -139,12 +145,14 @@ public partial class GameWindow : Form, IMinesweeperView
 
     private void PlayingField_Paint(object sender, PaintEventArgs e)
     {
-        Graphics graphics = e.Graphics;
+        var graphics = e.Graphics;
 
         for (int row = 0; row < PlayingFieldRowsCount; row++)
         {
             for (int column = 0; column < PlayingFieldColumnsCount; column++)
             {
+                ValidateDelegates(RequestCellState, nameof(RequestCellState));
+
                 int x = column * CellSideBaseSize;
                 int y = row * CellSideBaseSize;
 
@@ -159,14 +167,14 @@ public partial class GameWindow : Form, IMinesweeperView
 
                 if (neighborMinesCount != 0)
                 {
-                    string text = neighborMinesCount.ToString();
+                    var text = neighborMinesCount.ToString();
 
-                    Brush brush = GetBrushForNumber(neighborMinesCount);
+                    var brush = GetBrushForNumber(neighborMinesCount);
                     Font font = new("Consolas", CellSideBaseSize * 0.5f, FontStyle.Bold);
-                    SizeF textSize = graphics.MeasureString(text, font);
+                    var textSize = graphics.MeasureString(text, font);
 
-                    float textX = x + (CellSideBaseSize - textSize.Width) / 2;
-                    float textY = y + (CellSideBaseSize - textSize.Height) / 2;
+                    var textX = x + (CellSideBaseSize - textSize.Width) / 2;
+                    var textY = y + (CellSideBaseSize - textSize.Height) / 2;
 
                     graphics.DrawString(text, font, brush, textX, textY);
                 }
@@ -224,7 +232,7 @@ public partial class GameWindow : Form, IMinesweeperView
 
     private void DifficultyItem_Click(object sender, EventArgs e)
     {
-        ToolStripMenuItem checkedItem = (ToolStripMenuItem)sender;
+        var checkedItem = (ToolStripMenuItem)sender;
 
         if (!checkedItem.Checked)
         {
@@ -262,8 +270,8 @@ public partial class GameWindow : Form, IMinesweeperView
 
     private void PlayingField_MouseDown(object sender, MouseEventArgs e)
     {
-        int y = e.Y / CellSideBaseSize;
-        int x = e.X / CellSideBaseSize;
+        var y = e.Y / CellSideBaseSize;
+        var x = e.X / CellSideBaseSize;
 
         if (e.Button == MouseButtons.Left)
         {
@@ -273,32 +281,29 @@ public partial class GameWindow : Form, IMinesweeperView
         {
             OnCellRightClick?.Invoke(y, x);
         }
-    }
-
-    private void Timer_Tick(object? sender, EventArgs e)
-    {
-        if (ElapsedSeconds != 999)
+        else if (e.Button == MouseButtons.Middle)
         {
-            ElapsedSeconds++;
-            timerLabel.Text = ElapsedSeconds.ToString("D3");
+            OnCellMiddleClick?.Invoke(y, x);
         }
     }
 
-    public void StartTimer() => _timer.Start();
+    public void SetElapsedSeconds(int elapsedSecond)
+    {
+        if (elapsedSecond < 1000)
+        {
+            timerLabel.Text = elapsedSecond > 99 ? elapsedSecond.ToString() : (elapsedSecond > 9 ? "0" : "00") + elapsedSecond.ToString();
+        }
+    }
 
     public void SetGameOver()
     {
-        _timer.Stop();
-
         IsGameOver = true;
 
         resetButton.Image = _deadSmileImage;
     }
 
-    public void SetVictory()
+    public void SetVictory(int elapsedSeconds)
     {
-        _timer.Stop();
-
         IsGameOver = true;
 
         resetButton.Image = _happySmileImage;
@@ -311,21 +316,13 @@ public partial class GameWindow : Form, IMinesweeperView
         if (result == DialogResult.OK)
         {
             Difficulty difficulty = PlayingFieldColumnsCount == 30 ? Difficulty.Hard : (PlayingFieldColumnsCount == 16 ? Difficulty.Medium : Difficulty.Easy);
-            SaveRecord?.Invoke((saveRecordForm.PlayerName, ElapsedSeconds, difficulty));
+            SaveRecord?.Invoke((saveRecordForm.PlayerName, elapsedSeconds, difficulty));
         }
-    }
-
-    private void ResetTimer()
-    {
-        _timer.Stop();
-
-        ElapsedSeconds = 0;
-        timerLabel.Text = "000";
     }
 
     private void RestartGame()
     {
-        ResetTimer();
+        timerLabel.Text = "000";
 
         resetButton.Image = _ordinarySmileImage;
 
@@ -336,11 +333,13 @@ public partial class GameWindow : Form, IMinesweeperView
 
     private void ResetButton_MouseClick(object sender, MouseEventArgs e)
     {
+        TimerStopRequest?.Invoke();
         RestartGame();
     }
 
     private void NewGameToolStripMenuItem_Click(object sender, EventArgs e)
     {
+        TimerStopRequest?.Invoke();
         RestartGame();
     }
 
@@ -351,6 +350,8 @@ public partial class GameWindow : Form, IMinesweeperView
 
     private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
     {
+        ValidateDelegates(RequestAboutInfo, nameof(RequestAboutInfo));
+
         string aboutInfo = RequestAboutInfo!();
 
         aboutForm = new();
@@ -361,11 +362,10 @@ public partial class GameWindow : Form, IMinesweeperView
 
     private void RecordsToolStripMenuItem_Click(object sender, EventArgs e)
     {
+        ValidateDelegates(RequestRecordsString, nameof(RequestRecordsString));
+
         string recordsText = RequestRecordsString!();
 
-        RecordsForm recordsForm = new();
-
-        recordsForm.SetRecordsLabelText(recordsText);
-        recordsForm.Show();
+        MessageBox.Show(recordsText, "Records", MessageBoxButtons.OK);
     }
 }

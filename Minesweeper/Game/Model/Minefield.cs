@@ -3,13 +3,13 @@ using System.Text;
 
 namespace Minesweeper.Game.Model;
 
-internal class Minefield : IMinefield
+internal class MineField : IMineField
 {
     private ICell[,]? _cells;
 
     private List<(int Row, int Column)>? _minesCoordinates;
 
-    private int _unrevealedCells;
+    private int _unrevealedCellsCount;
 
     public int RowsCount { get; private set; }
 
@@ -19,19 +19,15 @@ internal class Minefield : IMinefield
 
     private int _minesCount;
 
-    public int FlagsPlaced { get; private set; }
+    public int FlagsPlacedCount { get; private set; }
+
+    public bool IsGenerated => _cells is not null;
 
     public event Action? AllSafeCellsRevealed;
 
-    private void ValidateCells()
-    {
-        if (_cells is null)
-        {
-            throw new InvalidOperationException("Minefield not generated");
-        }
-    }
+    public event Action? OnMineStepped;
 
-    private int CalculateMinesCount()
+    private int GetMinesCount()
     {
         return Size switch
         {
@@ -41,10 +37,10 @@ internal class Minefield : IMinefield
         };
     }
 
-    private void GenerateCells()
+    private void GenerateCells(int safeCellRow, int safeCellColumn)
     {
         _cells = new Cell[RowsCount, ColumnsCount];
-        _unrevealedCells = Size;
+        _unrevealedCellsCount = Size;
 
         for (int i = 0; i < RowsCount; i++)
         {
@@ -54,37 +50,44 @@ internal class Minefield : IMinefield
             }
         }
 
-        _minesCount = CalculateMinesCount();
+        _minesCount = GetMinesCount();
         _minesCoordinates = [];
 
         var random = new Random();
 
-        int readyMinesCount = 0;
+        var readyMinesCount = 0;
 
         while (readyMinesCount < _minesCount)
         {
-            int row = random.Next(RowsCount);
-            int col = random.Next(ColumnsCount);
+            var row = random.Next(RowsCount);
+            var column = random.Next(ColumnsCount);
 
-            ICell cell = _cells[row, col];
+            var cell = _cells[row, column];
 
-            if (!cell.IsMine)
+            if (!cell.IsMine && row != safeCellRow && column != safeCellColumn)
             {
                 cell.IsMine = true;
-                _minesCoordinates.Add((row, col));
+                _minesCoordinates.Add((row, column));
 
                 readyMinesCount++;
             }
         }
     }
 
-    public void GenerateNewMineField(int rowsCount, int columnsCount)
+    public void GenerateNewMineField(int rowsCount, int columnsCount, int safeCellRow, int safeCellColumn)
     {
+        ResetMineField();
+
         RowsCount = rowsCount;
         ColumnsCount = columnsCount;
-        FlagsPlaced = 0;
 
-        GenerateCells();
+        GenerateCells(safeCellRow, safeCellColumn);
+    }
+
+    public void ResetMineField()
+    {
+        _cells = default;
+        FlagsPlacedCount = 0;
     }
 
     private bool IsInsideField(int row, int column)
@@ -94,7 +97,10 @@ internal class Minefield : IMinefield
 
     public void RevealChainReaction(int row, int column)
     {
-        ValidateCells();
+        if (_cells is null)
+        {
+            return;
+        }
 
         Queue<(int Row, int Column)> queue = new();
         queue.Enqueue((row, column));
@@ -102,7 +108,7 @@ internal class Minefield : IMinefield
         while (queue.Count > 0)
         {
             var (currentRow, currentColumn) = queue.Dequeue();
-            ICell currentCell = _cells![currentRow, currentColumn];
+            var currentCell = _cells![currentRow, currentColumn];
 
             if (currentCell.IsRevealed || currentCell.IsFlagged)
             {
@@ -110,13 +116,13 @@ internal class Minefield : IMinefield
             }
 
             currentCell.IsRevealed = true;
-            _unrevealedCells--;
+            _unrevealedCellsCount--;
 
-            int startNeighborRow = currentRow - 1;
-            int endNeighborRow = currentRow + 1;
+            var startNeighborRow = currentRow - 1;
+            var endNeighborRow = currentRow + 1;
 
-            int startNeighborColumn = currentColumn - 1;
-            int endNeighborColumn = currentColumn + 1;
+            var startNeighborColumn = currentColumn - 1;
+            var endNeighborColumn = currentColumn + 1;
 
             for (int i = startNeighborRow; i <= endNeighborRow; i++)
             {
@@ -146,7 +152,7 @@ internal class Minefield : IMinefield
             }
         }
 
-        if (_unrevealedCells == _minesCount)
+        if (_unrevealedCellsCount == _minesCount)
         {
             RevealAllUnflaggedMines();
 
@@ -154,9 +160,72 @@ internal class Minefield : IMinefield
         }
     }
 
+    public void RevealFlaggedCellNeighbors(int row, int column)
+    {
+        if (_cells is null)
+        {
+            return;
+        }
+
+        var currentCell = _cells![row, column];
+
+        var startNeighborRow = row - 1;
+        var endNeighborRow = row + 1;
+
+        var startNeighborColumn = column - 1;
+        var endNeighborColumn = column + 1;
+
+        int flaggedMines = 0;
+        List<(int rowToReveal, int columnToReveal)> cellsToRevealCoordinates = [];
+
+        for (int i = startNeighborRow; i <= endNeighborRow; i++)
+        {
+            for (int j = startNeighborColumn; j <= endNeighborColumn; j++)
+            {
+                if (!IsInsideField(i, j))
+                {
+                    continue;
+                }
+
+                var cell = _cells[i, j];
+
+                if (cell.IsRevealed)
+                {
+                    continue;
+                }
+
+                if (cell.IsMine && !cell.IsFlagged)
+                {
+                    SetDeathPlace(i, j);
+                    OnMineStepped?.Invoke();
+                    return;
+                }
+                else if (cell.IsMine && cell.IsFlagged)
+                {
+                    flaggedMines++;
+                }
+                else
+                {
+                    cellsToRevealCoordinates.Add((i, j));
+                }
+            }
+        }
+
+        if (currentCell.NeighborMinesCount == flaggedMines)
+        {
+            foreach (var (rowToReveal, columnToReveal) in cellsToRevealCoordinates)
+            {
+                RevealChainReaction(rowToReveal, columnToReveal);
+            }
+        }
+    }
+
     public void SetDeathPlace(int row, int column)
     {
-        ValidateCells();
+        if (_cells is null)
+        {
+            return;
+        }
 
         _cells![row, column].IsDeathPlace = true;
 
@@ -176,30 +245,42 @@ internal class Minefield : IMinefield
 
     public void SetFlagged(int row, int column)
     {
-        ValidateCells();
+        if (_cells is null)
+        {
+            return;
+        }
 
-        ICell cell = _cells![row, column];
+        var cell = _cells![row, column];
 
         if (cell.IsFlagged)
         {
             cell.IsFlagged = false;
-            FlagsPlaced--;
+            FlagsPlacedCount--;
         }
-        else if (!cell.IsFlagged && FlagsPlaced != _minesCount)
+        else if (!cell.IsFlagged && FlagsPlacedCount != _minesCount)
         {
             cell.IsFlagged = true;
-            FlagsPlaced++;
+            FlagsPlacedCount++;
         }
     }
 
     public int GetMinesLeft()
     {
-        return _minesCount - FlagsPlaced;
+        return _minesCount - FlagsPlacedCount;
     }
 
     public (bool IsRevealed, bool IsFlagged, bool IsMine, bool IsDeathPlace, int NeighborMinesCount) GetCellProperties(int row, int column)
     {
-        ValidateCells();
+        if (_cells is null)
+        {
+            return (
+                false,
+                false,
+                false,
+                false,
+                0
+            );
+        }
 
         return (
             _cells![row, column].IsRevealed,
@@ -212,21 +293,40 @@ internal class Minefield : IMinefield
 
     public bool IsRevealed(int row, int column)
     {
-        ValidateCells();
+        if (_cells is null)
+        {
+            return false;
+        }
 
         return _cells![row, column].IsRevealed;
     }
 
     public bool IsMine(int row, int column)
     {
-        ValidateCells();
+        if (_cells is null)
+        {
+            return false;
+        }
 
         return _cells![row, column].IsMine;
     }
 
+    public bool IsFlagged(int row, int column)
+    {
+        if (_cells is null)
+        {
+            return false;
+        }
+
+        return _cells![row, column].IsFlagged;
+    }
+
     public override string ToString()
     {
-        ValidateCells();
+        if (_cells is null)
+        {
+            return string.Empty;
+        }
 
         StringBuilder stringBuilder = new();
 
