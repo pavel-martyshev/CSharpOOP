@@ -1,19 +1,17 @@
-﻿using TemperatureConverterTask.Model;
-
-namespace TemperatureConverterTask.View;
+﻿namespace TemperatureConverterTask.View;
 
 internal interface ITemperatureConverterView
 {
-    event Action<object>? InputScaleChanged;
+    event Action<string>? InputScaleChanged;
     event Action<double>? TemperatureConversionRequest;
 
-    void InitData(Dictionary<TemperatureScale, string> scales);
+    void InitData(Dictionary<string, string> scales);
 
-    void SetConversionScalesData(Dictionary<TemperatureScale, string> scales);
+    void SetConversionScalesData(Dictionary<string, string> scales);
 
     void SetConvertedTemperature(double convertedTemperature);
 
-    TemperatureScale GetInputScaleValue();
+    string GetInputScale();
 
-    TemperatureScale GetConversionScaleValue();
+    string GetConversionScale();
 }

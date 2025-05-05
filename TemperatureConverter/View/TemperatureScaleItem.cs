@@ -2,9 +2,9 @@
 
 namespace TemperatureConverterTask.View;
 
-public class TemperatureScaleItem(TemperatureScale scale, string displayName)
+public class TemperatureScaleItem(string scale, string displayName)
 {
-    public TemperatureScale Scale { get; } = scale;
+    public string Scale { get; } = scale;
 
     public string DisplayName { get; } = displayName;
 }

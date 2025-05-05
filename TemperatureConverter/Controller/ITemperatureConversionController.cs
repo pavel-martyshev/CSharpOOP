@@ -2,7 +2,7 @@
 
 internal interface ITemperatureConversionController
 {
-    void OnInputScaleChanged(object selectedScale);
+    void OnInputScaleChanged(string selectedScale);
 
     void GetConvertedTemperature(double inputTemperature);
 

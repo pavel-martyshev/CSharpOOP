@@ -9,4 +9,6 @@ public interface ITemperatureScale
     double ConvertToCelsius(double temperature);
 
     double ConvertFromCelsius(double temperature);
+
+    string ToString();
 }

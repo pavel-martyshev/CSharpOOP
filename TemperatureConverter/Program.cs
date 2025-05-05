@@ -16,7 +16,7 @@ internal static partial class Program
 
         ApplicationConfiguration.Initialize();
 
-        var controller = new TemperatureConversionController(new TemperatureConverterView(), new TemperatureScaleRegistry());
+        var controller = new TemperatureConversionController(new TemperatureConverterView(), new TemperatureScalesRegistry());
 
         controller.Run();
     }

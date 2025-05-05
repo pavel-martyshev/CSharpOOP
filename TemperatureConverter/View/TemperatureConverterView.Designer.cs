@@ -119,15 +119,17 @@ partial class TemperatureConverterView
         // 
         // TemperatureConverterView
         // 
-        AutoScaleDimensions = new SizeF(7F, 15F);
-        AutoScaleMode = AutoScaleMode.Font;
+        AutoScaleMode = AutoScaleMode.Inherit;
         BackColor = Color.FromArgb(27, 26, 32);
         ClientSize = new Size(690, 110);
         Controls.Add(convertedTemperaturePanel);
         Controls.Add(inputPanel);
+        DoubleBuffered = true;
         Font = new Font("Arial", 9F, FontStyle.Regular, GraphicsUnit.Point, 204);
-        FormBorderStyle = FormBorderStyle.FixedDialog;
+        FormBorderStyle = FormBorderStyle.FixedSingle;
+        MaximizeBox = false;
         Name = "TemperatureConverterView";
+        StartPosition = FormStartPosition.CenterScreen;
         Text = "Конвертер температуры";
         inputPanel.ResumeLayout(false);
         inputPanel.PerformLayout();
