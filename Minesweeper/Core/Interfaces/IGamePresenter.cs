@@ -4,7 +4,9 @@ namespace Minesweeper.Core.Interfaces;
 
 internal interface IGamePresenter
 {
-    (bool IsRevealed, bool IsFlagged, bool IsMine, bool IsDeathPlace, int NeighborMinesCount) GetCellState(int row, int column);
+    ICell GetCell(int row, int column);
+
+    (int, int) GetPlayingFieldSize(Difficulty difficulty);
 
     void OnCellLeftClickHandler(int row, int column);
 

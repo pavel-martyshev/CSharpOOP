@@ -7,7 +7,7 @@ public partial class AboutForm : Form
         InitializeComponent();
     }
 
-    public void SetAboutInfoLableText(string text)
+    public void SetAboutInfoLabelText(string text)
     {
         aboutInfoLable.Text = text;
     }

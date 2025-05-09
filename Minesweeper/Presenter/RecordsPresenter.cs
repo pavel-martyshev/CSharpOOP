@@ -12,11 +12,11 @@ internal class RecordsPresenter : IRecordsPresenter
 
     private readonly List<Record> _records;
 
-    private static readonly string _appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+    private static readonly string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-    private static readonly string _recordsFolderPath = Path.Combine(_appDataPath, "Minesweeper");
+    private static readonly string RecordsFolderPath = Path.Combine(AppDataPath, "Minesweeper");
 
-    private static readonly string _recordsFilePath = Path.Combine(_recordsFolderPath, "records.json");
+    private static readonly string RecordsFilePath = Path.Combine(RecordsFolderPath, "records.json");
 
     public RecordsPresenter(IMinesweeperView view)
     {
@@ -24,18 +24,18 @@ internal class RecordsPresenter : IRecordsPresenter
         _view.RequestRecordsString += GetRecordsString;
         _view.SaveRecord += SaveRecord;
 
-        if (!Directory.Exists(_recordsFolderPath))
+        if (!Directory.Exists(RecordsFolderPath))
         {
-            Directory.CreateDirectory(_recordsFolderPath);
+            Directory.CreateDirectory(RecordsFolderPath);
         }
 
-        if (!File.Exists(_recordsFilePath))
+        if (!File.Exists(RecordsFilePath))
         {
-            File.WriteAllText(_recordsFilePath, "[]");
+            File.WriteAllText(RecordsFilePath, "[]");
             _records = [];
         }
 
-        _records = JsonSerializer.Deserialize<List<Record>>(File.ReadAllText(_recordsFilePath))!;
+        _records = JsonSerializer.Deserialize<List<Record>>(File.ReadAllText(RecordsFilePath))!;
     }
 
     public string GetRecordsString()
@@ -45,9 +45,9 @@ internal class RecordsPresenter : IRecordsPresenter
             return "There are no records";
         }
 
-        StringBuilder stringBuilder = new();
+        var stringBuilder = new StringBuilder();
 
-        for (int i = 0; i < _records.Count; i++)
+        for (var i = 0; i < _records.Count; i++)
         {
             stringBuilder.AppendLine(
                 $"{i + 1} place:{Environment.NewLine}" +
@@ -71,6 +71,6 @@ internal class RecordsPresenter : IRecordsPresenter
         ));
 
         var json = JsonSerializer.Serialize(_records);
-        File.WriteAllText(_recordsFilePath, json);
+        File.WriteAllText(RecordsFilePath, json);
     }
 }

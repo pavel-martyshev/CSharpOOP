@@ -1,4 +1,6 @@
-﻿namespace Minesweeper.Core.Interfaces;
+﻿using Minesweeper.Core.Enums;
+
+namespace Minesweeper.Core.Interfaces;
 
 internal interface IMineField
 {
@@ -16,13 +18,15 @@ internal interface IMineField
 
     event Action? OnMineStepped;
 
+    void UpdateSizeByDifficulty(Difficulty difficulty);
+
     void GenerateNewMineField(int rowsCount, int columnsCount, int safeCellRow, int safeCellColumn);
 
     void ResetMineField();
 
     void RevealChainReaction(int rowsCount, int columnsCount);
 
-    void RevealFlaggedCellNeighbors(int row, int column);
+    void Chording(int row, int column);
 
     void SetDeathPlace(int row, int column);
 
@@ -30,7 +34,9 @@ internal interface IMineField
 
     int GetMinesLeft();
 
-    (bool IsRevealed, bool IsFlagged, bool IsMine, bool IsDeathPlace, int NeighborMinesCount) GetCellProperties(int row, int column);
+    ICell? GetCell(int row, int column);
+
+    bool IsChordingPossible(int row, int column);
 
     bool IsRevealed(int row, int column);
 

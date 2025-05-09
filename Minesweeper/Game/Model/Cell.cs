@@ -1,24 +1,10 @@
 ﻿using Minesweeper.Core.Interfaces;
-using System.Text;
 
 namespace Minesweeper.Game.Model;
 
-internal class Cell : ICell
+class Cell : ICell
 {
-    private bool _isMine;
-
-    public bool IsMine
-    {
-        get => _isMine;
-
-        set
-        {
-            if (!_isMine)
-            {
-                _isMine = true;
-            }
-        }
-    }
+    public bool IsMine { get; set; }
 
     public bool IsRevealed { get; set; }
 
@@ -28,23 +14,16 @@ internal class Cell : ICell
 
     public bool IsDeathPlace { get; set; }
 
-    public override string ToString()
+    public Cell() {}
+
+    public Cell(bool isMine, bool isRevealed, bool isFlagged, int neighborMinesCount, bool isDeathPlace)
     {
-        StringBuilder stringBuilder = new();
-
-        if (IsMine)
-        {
-            stringBuilder.Append('M');
-        }
-        else if (IsRevealed)
-        {
-            stringBuilder.Append('R');
-        }
-        else
-        {
-            stringBuilder.Append('C');
-        }
-
-        return stringBuilder.ToString();
+        IsMine = isMine;
+        IsRevealed = isRevealed;
+        IsFlagged = isFlagged;
+        NeighborMinesCount = neighborMinesCount;
+        IsDeathPlace = isDeathPlace;
     }
+
+    public override string ToString() => IsMine ? "M" : (IsRevealed ? "R" : "C");
 }

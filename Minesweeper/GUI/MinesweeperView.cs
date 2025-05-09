@@ -6,50 +6,41 @@ namespace Minesweeper;
 
 public partial class GameWindow : Form, IMinesweeperView
 {
-    // playingField settings
     public int CellSideBaseSize { get; } = 30;
 
-    public int PlayingFieldRowsCount { get; private set; } = 9;
-
-    public int PlayingFieldColumnsCount { get; private set; } = 9;
+    private int _playingFieldRowsCount;
+    private int _playingFieldColumnsCount;
 
     public bool IsGameOver { get; private set; }
 
-    private int PlayingFieldWidth => CellSideBaseSize * PlayingFieldColumnsCount;
+    private int _playingFieldWidth;
 
-    private int PlayingFieldHeight => CellSideBaseSize * PlayingFieldRowsCount;
+    private int _playingFieldHeight;
 
-    public event Func<int, int, (bool IsRevealed, bool IsFlagged, bool IsMine, bool IsDeathPlace, int NeighborMinesCount)>? RequestCellState;
-    public event Action? Restart;
-
-    public event Action<int, int>? OnCellLeftClick;
-    public event Action<int, int>? OnCellRightClick;
-
-    public event Action<int, int>? OnDifficultyChange;
-    public event Action<(string, int, Difficulty)>? SaveRecord;
+    public event Func<int, int, ICell?>? RequestCell;
+    public event Func<Difficulty, (int, int)>? RequestPlayingFieldSize;
 
     public event Func<string>? RequestAboutInfo;
     public event Func<string>? RequestRecordsString;
 
+    public event Action? Restart;
+    public event Action<int, int>? OnCellLeftClick;
+
+    public event Action<int, int>? OnCellRightClick;
+    public event Action<int, int>? OnDifficultyChange;
+
+    public event Action<(string, int, Difficulty)>? SaveRecord;
     public event Action? TimerStopRequest;
     public event Action<int, int>? OnCellMiddleClick;
 
-    private static readonly string _basePath = Path.Combine("..", "..", "..", "GUI", "Data");
+    private static readonly string BasePath = Path.Combine("..", "..", "..", "GUI", "Data");
+    private static readonly Image FlagImage = Image.FromFile(Path.Combine(BasePath, "Flag.png"));
 
-    private readonly string _flagImagePath = Path.Combine(_basePath, "Flag.png");
-    private readonly Image _flagImage;
+    private static readonly Image MineImage = Image.FromFile(Path.Combine(BasePath, "Mine.png"));
+    private static readonly Image OrdinarySmileImage = Image.FromFile(Path.Combine(BasePath, "Ordinary.png"));
 
-    private readonly string _mineImagePath = Path.Combine(_basePath, "Mine.png");
-    private readonly Image _mineImage;
-
-    private readonly string _ordinarySmileImagePath = Path.Combine(_basePath, "Ordinary.png");
-    private readonly Image _ordinarySmileImage;
-
-    private readonly string _deadSmileImagePath = Path.Combine(_basePath, "Dead.png");
-    private readonly Image _deadSmileImage;
-
-    private readonly string _happySmileImagePath = Path.Combine(_basePath, "Happy.png");
-    private readonly Image _happySmileImage;
+    private static readonly Image DeadSmileImage = Image.FromFile(Path.Combine(BasePath, "Dead.png"));
+    private readonly Image HappySmileImage = Image.FromFile(Path.Combine(BasePath, "Happy.png"));
 
     private AboutForm? aboutForm;
 
@@ -57,38 +48,60 @@ public partial class GameWindow : Form, IMinesweeperView
     {
         InitializeComponent();
 
-        easy9x9ToolStripMenuItem.Checked = true;
 
-        _flagImage = Image.FromFile(_flagImagePath);
-        _mineImage = Image.FromFile(_mineImagePath);
 
-        _ordinarySmileImage = Image.FromFile(_ordinarySmileImagePath);
-        _deadSmileImage = Image.FromFile(_deadSmileImagePath);
-        _happySmileImage = Image.FromFile(_happySmileImagePath);
-
-        SettingFields();
+        //SetFields();
     }
 
-    private void SettingFields()
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+
+        easy9x9ToolStripMenuItem.Checked = true;
+
+        SetSize(0);
+        SetFields();
+    }
+
+    private void SetFields()
     {
         // Enable double buffering
         typeof(Panel).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.SetValue(playingField, true, null);
 
-        SettingGameWindow();
+        SetGameWindow();
 
-        SettingGameSettingsMenu();
+        SetGameSettingsMenu();
 
-        SettingInfoBar();
+        SetInfoBar();
 
-        SettingPlayingField();
+        SetPlayingField();
     }
 
-    private void SettingGameWindow()
+    private void SetSize(Difficulty difficulty)
     {
-        ClientSize = new Size(PlayingFieldWidth + 14, PlayingFieldHeight + infoBar.Height + menuBar.Height + 10);
+        var size = RequestPlayingFieldSize?.Invoke(difficulty);
+
+        if (size is (int rows, int columns))
+        {
+            _playingFieldRowsCount = rows;
+            _playingFieldColumnsCount = columns;
+
+            _playingFieldHeight = CellSideBaseSize * rows;
+            _playingFieldWidth = CellSideBaseSize * columns;
+        }
+        else
+        {
+            MessageBox.Show("The size of the playing field is not set.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Close();
+        }
     }
 
-    private void SettingGameSettingsMenu()
+    private void SetGameWindow()
+    {
+        ClientSize = new Size(_playingFieldWidth + 14, _playingFieldHeight + infoBar.Height + menuBar.Height + 10);
+    }
+
+    private void SetGameSettingsMenu()
     {
         easy9x9ToolStripMenuItem.Tag = Difficulty.Easy;
         medium16x16ToolStripMenuItem.Tag = Difficulty.Medium;
@@ -99,7 +112,7 @@ public partial class GameWindow : Form, IMinesweeperView
         hard30x16ToolStripMenuItem.Click += DifficultyItem_Click!;
     }
 
-    private void SettingInfoBar()
+    private void SetInfoBar()
     {
         infoBar.Size = new Size(ClientSize.Width - 12, infoBar.Height);
 
@@ -108,9 +121,9 @@ public partial class GameWindow : Form, IMinesweeperView
         resetButton.Location = new Point(infoBar.Width / 2 - resetButton.Width / 2, 5);
     }
 
-    private void SettingPlayingField()
+    private void SetPlayingField()
     {
-        playingField.Size = new Size(PlayingFieldWidth + 4, PlayingFieldHeight + 4);
+        playingField.Size = new Size(_playingFieldWidth + 4, _playingFieldHeight + 4);
     }
 
     private static void ValidateDelegates(Delegate? callback, string name)
@@ -147,30 +160,35 @@ public partial class GameWindow : Form, IMinesweeperView
     {
         var graphics = e.Graphics;
 
-        for (int row = 0; row < PlayingFieldRowsCount; row++)
+        for (var row = 0; row < _playingFieldRowsCount; row++)
         {
-            for (int column = 0; column < PlayingFieldColumnsCount; column++)
+            for (var column = 0; column < _playingFieldColumnsCount; column++)
             {
-                ValidateDelegates(RequestCellState, nameof(RequestCellState));
+                ValidateDelegates(RequestCell, nameof(RequestCell));
 
                 int x = column * CellSideBaseSize;
                 int y = row * CellSideBaseSize;
 
-                Rectangle cellRectangle = new(x, y, CellSideBaseSize, CellSideBaseSize);
+                var cellRectangle = new Rectangle(x, y, CellSideBaseSize, CellSideBaseSize);
 
-                var (isRevealed, isFlagged, isMine, isDeathPlace, neighborMinesCount) = RequestCellState!(row, column);
+                var cell = RequestCell!(row, column);
 
-                var borderStyle = isRevealed ? Border3DStyle.SunkenOuter : Border3DStyle.Raised;
+                if (cell is null)
+                {
+                    return;
+                }
+
+                var borderStyle = cell.IsRevealed ? Border3DStyle.SunkenOuter : Border3DStyle.Raised;
 
                 graphics.FillRectangle(Brushes.LightGray, cellRectangle);
                 ControlPaint.DrawBorder3D(graphics, cellRectangle, borderStyle);
 
-                if (neighborMinesCount != 0)
+                if (cell.NeighborMinesCount != 0)
                 {
-                    var text = neighborMinesCount.ToString();
+                    var text = cell.NeighborMinesCount.ToString();
 
-                    var brush = GetBrushForNumber(neighborMinesCount);
-                    Font font = new("Consolas", CellSideBaseSize * 0.5f, FontStyle.Bold);
+                    var brush = GetBrushForNumber(cell.NeighborMinesCount);
+                    var font = new Font("Consolas", CellSideBaseSize * 0.5f, FontStyle.Bold);
                     var textSize = graphics.MeasureString(text, font);
 
                     var textX = x + (CellSideBaseSize - textSize.Width) / 2;
@@ -179,54 +197,35 @@ public partial class GameWindow : Form, IMinesweeperView
                     graphics.DrawString(text, font, brush, textX, textY);
                 }
 
-                if (isMine && isRevealed)
+                if (cell.IsMine && cell.IsRevealed)
                 {
-                    if (isDeathPlace)
+                    if (cell.IsDeathPlace)
                     {
                         graphics.FillRectangle(Brushes.Firebrick, cellRectangle);
                     }
 
-                    Rectangle mineRectangle = new(
+                    var mineRectangle = new Rectangle(
                         cellRectangle.X + 5,
                         cellRectangle.Y + 5,
                         cellRectangle.Width - 2 * 5,
                         cellRectangle.Height - 2 * 5
                     );
 
-                    graphics.DrawImage(_mineImage, mineRectangle);
+                    graphics.DrawImage(MineImage, mineRectangle);
                 }
 
-                if (isFlagged)
+                if (cell.IsFlagged)
                 {
-                    Rectangle flagRectangle = new(
+                    var flagRectangle = new Rectangle(
                         cellRectangle.X + 5,
                         cellRectangle.Y + 5,
                         cellRectangle.Width - 2 * 5,
                         cellRectangle.Height - 2 * 5
                     );
 
-                    graphics.DrawImage(_flagImage, flagRectangle);
+                    graphics.DrawImage(FlagImage, flagRectangle);
                 }
             }
-        }
-    }
-
-    private void UpdateDifficulty(Difficulty difficulty)
-    {
-        switch (difficulty)
-        {
-            case Difficulty.Easy:
-                PlayingFieldRowsCount = 9;
-                PlayingFieldColumnsCount = 9;
-                break;
-            case Difficulty.Medium:
-                PlayingFieldRowsCount = 16;
-                PlayingFieldColumnsCount = 16;
-                break;
-            case Difficulty.Hard:
-                PlayingFieldRowsCount = 16;
-                PlayingFieldColumnsCount = 30;
-                break;
         }
     }
 
@@ -240,26 +239,25 @@ public partial class GameWindow : Form, IMinesweeperView
             medium16x16ToolStripMenuItem.Checked = false;
             hard30x16ToolStripMenuItem.Checked = false;
 
-            UpdateDifficulty((Difficulty)checkedItem.Tag!);
-
             checkedItem.Checked = true;
 
-            OnDifficultyChange?.Invoke(PlayingFieldRowsCount, PlayingFieldColumnsCount);
+            RestartGame();
+            SetSize((Difficulty)checkedItem.Tag!);
 
-            SettingFields();
+            SetFields();
             playingField.Invalidate();
         }
     }
 
     public void RedrawCell(int row, int column)
     {
-        Rectangle cell = new(column * CellSideBaseSize, row * CellSideBaseSize, CellSideBaseSize, CellSideBaseSize);
+        var cell = new Rectangle(column * CellSideBaseSize, row * CellSideBaseSize, CellSideBaseSize, CellSideBaseSize);
         playingField.Invalidate(cell);
     }
 
     public void InvalidatePlayingField()
     {
-        SettingFields();
+        SetFields();
         playingField.Invalidate();
     }
 
@@ -299,23 +297,23 @@ public partial class GameWindow : Form, IMinesweeperView
     {
         IsGameOver = true;
 
-        resetButton.Image = _deadSmileImage;
+        resetButton.Image = DeadSmileImage;
     }
 
     public void SetVictory(int elapsedSeconds)
     {
         IsGameOver = true;
 
-        resetButton.Image = _happySmileImage;
+        resetButton.Image = HappySmileImage;
 
         playingField.Invalidate();
 
-        SaveRecordForm saveRecordForm = new();
+        var saveRecordForm = new SaveRecordForm();
         var result = saveRecordForm.ShowDialog();
 
         if (result == DialogResult.OK)
         {
-            Difficulty difficulty = PlayingFieldColumnsCount == 30 ? Difficulty.Hard : (PlayingFieldColumnsCount == 16 ? Difficulty.Medium : Difficulty.Easy);
+            var difficulty = _playingFieldColumnsCount == 30 ? Difficulty.Hard : (_playingFieldColumnsCount == 16 ? Difficulty.Medium : Difficulty.Easy);
             SaveRecord?.Invoke((saveRecordForm.PlayerName, elapsedSeconds, difficulty));
         }
     }
@@ -324,22 +322,21 @@ public partial class GameWindow : Form, IMinesweeperView
     {
         timerLabel.Text = "000";
 
-        resetButton.Image = _ordinarySmileImage;
+        resetButton.Image = OrdinarySmileImage;
 
         IsGameOver = false;
 
+        TimerStopRequest?.Invoke();
         Restart?.Invoke();
     }
 
     private void ResetButton_MouseClick(object sender, MouseEventArgs e)
     {
-        TimerStopRequest?.Invoke();
         RestartGame();
     }
 
     private void NewGameToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        TimerStopRequest?.Invoke();
         RestartGame();
     }
 
@@ -356,7 +353,7 @@ public partial class GameWindow : Form, IMinesweeperView
 
         aboutForm = new();
 
-        aboutForm.SetAboutInfoLableText(aboutInfo);
+        aboutForm.SetAboutInfoLabelText(aboutInfo);
         aboutForm.Show();
     }
 

@@ -1,4 +1,5 @@
-﻿using Minesweeper.Core.Interfaces;
+﻿using Minesweeper.Core.Enums;
+using Minesweeper.Core.Interfaces;
 using Minesweeper.Game.Model;
 using System.Text.Json;
 
@@ -20,16 +21,18 @@ internal class GamePresenter : IGamePresenter
 
         _view.SetMinesCount(_minefield.GetMinesLeft());
 
-        _view.RequestCellState += GetCellState;
+        _view.RequestCell += GetCell;
+        _view.RequestPlayingFieldSize += GetPlayingFieldSize;
+
         _view.OnCellLeftClick += OnCellLeftClickHandler;
-
         _view.OnCellRightClick += OnCellRightClickHandler;
+
         _view.OnDifficultyChange += DifficultyChangeHandler;
-
         _view.Restart += Restart;
-        _view.RequestAboutInfo += GetAboutInfo;
 
+        _view.RequestAboutInfo += GetAboutInfo;
         _view.TimerStopRequest += _gameTimer.Stop;
+
         _view.OnCellMiddleClick += OnCellMiddleClickHandler;
 
         _minefield.AllSafeCellsRevealed += AllSafeRevealedCellsHandler;
@@ -38,14 +41,21 @@ internal class GamePresenter : IGamePresenter
         _gameTimer.Tick += OnTimerTick;
     }
 
-    public (bool IsRevealed, bool IsFlagged, bool IsMine, bool IsDeathPlace, int NeighborMinesCount) GetCellState(int row, int column)
+    public ICell GetCell(int row, int column)
     {
-        return _minefield.GetCellProperties(row, column);
+        var cell = _minefield.GetCell(row, column);
+
+        if (cell is null)
+        {
+            return new Cell(false, false, false, 0, false);
+        }
+
+        return cell;
     }
 
     private bool ValidateCellClick(int row, int column)
     {
-        if (_view.IsGameOver)
+        if (_view.IsGameOver || _minefield.IsRevealed(row, column))
         {
             return false;
         }
@@ -55,12 +65,13 @@ internal class GamePresenter : IGamePresenter
             _gameTimer.Start();
         }
 
-        if (_minefield.IsRevealed(row, column))
-        {
-            return false;
-        }
-
         return true;
+    }
+
+    public (int, int) GetPlayingFieldSize(Difficulty difficulty)
+    {
+        _minefield.UpdateSizeByDifficulty(difficulty);
+        return (_minefield.RowsCount, _minefield.ColumnsCount);
     }
 
     public void OnCellLeftClickHandler(int row, int column)
@@ -72,7 +83,7 @@ internal class GamePresenter : IGamePresenter
 
         if (!_minefield.IsGenerated)
         {
-            _minefield.GenerateNewMineField(_view.PlayingFieldRowsCount, _view.PlayingFieldColumnsCount, row, column);
+            _minefield.GenerateNewMineField(_minefield.RowsCount, _minefield.ColumnsCount, row, column);
         }
 
         if (_minefield.IsMine(row, column))
@@ -104,12 +115,11 @@ internal class GamePresenter : IGamePresenter
 
     public void OnCellMiddleClickHandler(int row, int column)
     {
-        if (!_view.IsGameOver && _minefield.IsRevealed(row, column))
+        if (!_view.IsGameOver && _minefield.IsChordingPossible(row, column))
         {
-            _minefield.RevealFlaggedCellNeighbors(row, column);
+            _minefield.Chording(row, column);
+            _view.InvalidatePlayingField();
         }
-
-        _view.InvalidatePlayingField();
     }
 
     public void OnMineSteppedHandler()

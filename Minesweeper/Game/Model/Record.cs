@@ -1,5 +1,4 @@
 ﻿using Minesweeper.Core.Enums;
-using System.Text;
 
 namespace Minesweeper.Game.Model;
 
@@ -20,16 +19,5 @@ internal class Record
         Difficulty = difficulty;
     }
 
-    public override string ToString()
-    {
-        StringBuilder stringBuilder = new();
-
-        stringBuilder.AppendLine(
-            PlayerName + Environment.NewLine +
-            TimeSeconds + Environment.NewLine +
-            Difficulty + Environment.NewLine
-        );
-
-        return stringBuilder.ToString();
-    }
+    public override string ToString() => $"""{PlayerName}{Environment.NewLine}{TimeSeconds}{Environment.NewLine}{Difficulty}""";
 }

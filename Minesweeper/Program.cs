@@ -1,6 +1,5 @@
 using Minesweeper.Core.Interfaces;
 using Minesweeper.Game.Model;
-using System.Runtime.InteropServices;
 
 namespace Minesweeper;
 
@@ -10,6 +9,8 @@ internal static class Program
     static void Main()
     {
         ApplicationConfiguration.Initialize();
+
+        //AllocConsole();
 
         IMinesweeperView view = new GameWindow();
 

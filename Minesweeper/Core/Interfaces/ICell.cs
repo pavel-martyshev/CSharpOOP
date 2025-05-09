@@ -1,6 +1,6 @@
 ﻿namespace Minesweeper.Core.Interfaces;
 
-internal interface ICell
+public interface ICell
 {
     bool IsMine { get; set; }
 
