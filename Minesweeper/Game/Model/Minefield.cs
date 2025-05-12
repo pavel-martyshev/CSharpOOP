@@ -1,4 +1,5 @@
-﻿using Minesweeper.Core.Interfaces;
+﻿using Minesweeper.Core.Enums;
+using Minesweeper.Core.Interfaces;
 using System.Text;
 
 namespace Minesweeper.Game.Model;
@@ -11,9 +12,9 @@ internal class MineField : IMineField
 
     private int _unrevealedCellsCount;
 
-    public int RowsCount { get; private set; }
+    public int RowsCount { get; private set; } = 9;
 
-    public int ColumnsCount { get; private set; }
+    public int ColumnsCount { get; private set; } = 9;
 
     public int Size => RowsCount * ColumnsCount;
 
@@ -42,9 +43,9 @@ internal class MineField : IMineField
         _cells = new Cell[RowsCount, ColumnsCount];
         _unrevealedCellsCount = Size;
 
-        for (int i = 0; i < RowsCount; i++)
+        for (var i = 0; i < RowsCount; i++)
         {
-            for (int j = 0; j < ColumnsCount; j++)
+            for (var j = 0; j < ColumnsCount; j++)
             {
                 _cells[i, j] = new Cell();
             }
@@ -71,6 +72,25 @@ internal class MineField : IMineField
 
                 readyMinesCount++;
             }
+        }
+    }
+
+    public void UpdateSizeByDifficulty(Difficulty difficulty)
+    {
+        switch (difficulty)
+        {
+            case Difficulty.Easy:
+                RowsCount = 9;
+                ColumnsCount = 9;
+                break;
+            case Difficulty.Medium:
+                RowsCount = 16;
+                ColumnsCount = 16;
+                break;
+            case Difficulty.Hard:
+                RowsCount = 16;
+                ColumnsCount = 30;
+                break;
         }
     }
 
@@ -102,7 +122,7 @@ internal class MineField : IMineField
             return;
         }
 
-        Queue<(int Row, int Column)> queue = new();
+        var queue = new Queue<(int Row, int Column)>();
         queue.Enqueue((row, column));
 
         while (queue.Count > 0)
@@ -124,9 +144,9 @@ internal class MineField : IMineField
             var startNeighborColumn = currentColumn - 1;
             var endNeighborColumn = currentColumn + 1;
 
-            for (int i = startNeighborRow; i <= endNeighborRow; i++)
+            for (var i = startNeighborRow; i <= endNeighborRow; i++)
             {
-                for (int j = startNeighborColumn; j <= endNeighborColumn; j++)
+                for (var j = startNeighborColumn; j <= endNeighborColumn; j++)
                 {
                     if (IsInsideField(i, j) && _cells[i, j].IsMine)
                     {
@@ -140,9 +160,9 @@ internal class MineField : IMineField
                 continue;
             }
 
-            for (int i = startNeighborRow; i <= endNeighborRow; i++)
+            for (var i = startNeighborRow; i <= endNeighborRow; i++)
             {
-                for (int j = startNeighborColumn; j <= endNeighborColumn; j++)
+                for (var j = startNeighborColumn; j <= endNeighborColumn; j++)
                 {
                     if (IsInsideField(i, j) && !_cells[i, j].IsMine)
                     {
@@ -160,7 +180,7 @@ internal class MineField : IMineField
         }
     }
 
-    public void RevealFlaggedCellNeighbors(int row, int column)
+    public void Chording(int row, int column)
     {
         if (_cells is null)
         {
@@ -176,11 +196,11 @@ internal class MineField : IMineField
         var endNeighborColumn = column + 1;
 
         int flaggedMines = 0;
-        List<(int rowToReveal, int columnToReveal)> cellsToRevealCoordinates = [];
+        var cellsToRevealCoordinates = new List<(int rowToReveal, int columnToReveal)>();
 
-        for (int i = startNeighborRow; i <= endNeighborRow; i++)
+        for (var i = startNeighborRow; i <= endNeighborRow; i++)
         {
-            for (int j = startNeighborColumn; j <= endNeighborColumn; j++)
+            for (var j = startNeighborColumn; j <= endNeighborColumn; j++)
             {
                 if (!IsInsideField(i, j))
                 {
@@ -200,7 +220,8 @@ internal class MineField : IMineField
                     OnMineStepped?.Invoke();
                     return;
                 }
-                else if (cell.IsMine && cell.IsFlagged)
+
+                if (cell.IsMine && cell.IsFlagged)
                 {
                     flaggedMines++;
                 }
@@ -269,28 +290,55 @@ internal class MineField : IMineField
         return _minesCount - FlagsPlacedCount;
     }
 
-    public (bool IsRevealed, bool IsFlagged, bool IsMine, bool IsDeathPlace, int NeighborMinesCount) GetCellProperties(int row, int column)
+    public ICell? GetCell(int row, int column)
     {
         if (_cells is null)
         {
-            return (
-                false,
-                false,
-                false,
-                false,
-                0
-            );
+            return null;
         }
 
-        var cell = _cells[row, column];
+        return _cells[row, column];
+    }
 
-        return (
-            cell.IsRevealed,
-            cell.IsFlagged,
-            cell.IsMine,
-            cell.IsDeathPlace,
-            cell.NeighborMinesCount
-        );
+    public bool IsChordingPossible(int row, int column)
+    {
+        if (_cells is null)
+        {
+            return false;
+        }
+
+        var currentCell = _cells[row, column];
+
+        if (!currentCell.IsRevealed)
+        {
+            return false;
+        }
+
+        var startNeighborRow = row - 1;
+        var endNeighborRow = row + 1;
+
+        var startNeighborColumn = column - 1;
+        var endNeighborColumn = column + 1;
+
+        var flagsCount = 0;
+
+        for (var i = startNeighborRow; i <= endNeighborRow; i++)
+        {
+            for (var j = startNeighborColumn; j <= endNeighborColumn; j++)
+            {
+                if (!IsInsideField(i, j))
+                {
+                    continue;
+                }
+
+                if (_cells[i, j].IsFlagged)
+                {
+                    flagsCount++;
+                }
+            }
+        }
+
+        return flagsCount == currentCell.NeighborMinesCount;
     }
 
     public bool IsRevealed(int row, int column)
@@ -330,11 +378,11 @@ internal class MineField : IMineField
             return string.Empty;
         }
 
-        StringBuilder stringBuilder = new();
+        var stringBuilder = new StringBuilder();
 
-        for (int i = 0; i < RowsCount; i++)
+        for (var i = 0; i < RowsCount; i++)
         {
-            for (int j = 0; j < ColumnsCount; j++)
+            for (var j = 0; j < ColumnsCount; j++)
             {
                 stringBuilder.Append($"{_cells![i, j]} ");
             }
