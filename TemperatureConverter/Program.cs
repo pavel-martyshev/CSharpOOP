@@ -1,9 +1,10 @@
 using TemperatureConverterTask.Controller;
 using TemperatureConverterTask.Model;
+using TemperatureConverterTask.View;
 
 namespace TemperatureConverterTask;
 
-internal static partial class Program
+internal static class Program
 {
     /// <summary>
     ///  The main entry point for the application.

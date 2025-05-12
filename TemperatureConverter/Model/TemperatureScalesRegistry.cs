@@ -8,20 +8,16 @@ internal class TemperatureScalesRegistry
 
     public TemperatureScalesRegistry()
     {
-        _scales = [];
-
-        foreach (var scale in LoadScales())
-        {
-            _scales[scale.Name] = scale;
-        }
+        _scales = LoadScales();
     }
 
-    private static List<ITemperatureScale> LoadScales()
+    private static Dictionary<string, ITemperatureScale> LoadScales()
     {
         return Assembly.GetExecutingAssembly()
             .GetTypes()
             .Where(t => typeof(ITemperatureScale).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
-            .Select(t => (ITemperatureScale)Activator.CreateInstance(t)!).ToList();
+            .Select(t => (ITemperatureScale)Activator.CreateInstance(t)!)
+            .ToDictionary(s => s.Name, s => s);
     }
 
     public IReadOnlyDictionary<string, ITemperatureScale> Scales => _scales;

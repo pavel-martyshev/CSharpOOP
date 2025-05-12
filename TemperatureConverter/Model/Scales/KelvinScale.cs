@@ -1,4 +1,4 @@
-﻿namespace TemperatureConverterTask.Model;
+﻿namespace TemperatureConverterTask.Model.Scales;
 
 internal class KelvinScale : ITemperatureScale
 {

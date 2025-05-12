@@ -1,4 +1,5 @@
 ﻿using TemperatureConverterTask.Model;
+using TemperatureConverterTask.View;
 
 namespace TemperatureConverterTask.Controller;
 
@@ -22,8 +23,9 @@ class TemperatureConversionController : ITemperatureConversionController
     public void OnInputScaleChanged(string selectedScale)
     {
         _view.SetConversionScalesData(_temperatureScalesRegistry.Scales
+            .Where(kvp => kvp.Key != selectedScale)
             .Select(kvp => new KeyValuePair<string, string>(kvp.Key, kvp.Value.ToString()!))
-            .Where(kvp => kvp.Key != selectedScale).ToDictionary());
+            .ToDictionary());
     }
 
     public void GetConvertedTemperature(double inputTemperature)

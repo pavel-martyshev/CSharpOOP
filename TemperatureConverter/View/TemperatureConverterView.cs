@@ -1,11 +1,14 @@
 using System.Text.RegularExpressions;
-using TemperatureConverterTask.View;
 
-namespace TemperatureConverterTask;
+namespace TemperatureConverterTask.View;
 
 public partial class TemperatureConverterView : Form, ITemperatureConverterView
 {
-    private readonly string _incorrectInputMessage = $"Некорректный ввод температуры.{Environment.NewLine}{Environment.NewLine}Разрешено:{Environment.NewLine}- Цифры{Environment.NewLine}- Один минус в начале";
+    private const string _incorrectInputMessage =
+        "Некорректный ввод температуры.\r\n\r\n" +
+        "Разрешено:\r\n" +
+        "  - Цифры\r\n" +  
+        "  - Один минус в начале";
 
     public event Action<string>? InputScaleChanged;
     public event Action<double>? TemperatureConversionRequest;
