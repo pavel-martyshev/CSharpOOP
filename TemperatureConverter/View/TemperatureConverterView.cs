@@ -4,7 +4,7 @@ namespace TemperatureConverterTask.View;
 
 public partial class TemperatureConverterView : Form, ITemperatureConverterView
 {
-    private const string _incorrectInputMessage =
+    private const string IncorrectInputMessage =
         "Некорректный ввод температуры.\r\n\r\n" +
         "Разрешено:\r\n" +
         "  - Цифры\r\n" +  
@@ -69,7 +69,7 @@ public partial class TemperatureConverterView : Form, ITemperatureConverterView
             }
             catch (FormatException)
             {
-                ShowError(_incorrectInputMessage);
+                ShowError(IncorrectInputMessage);
             }
         }
     }
@@ -80,7 +80,7 @@ public partial class TemperatureConverterView : Form, ITemperatureConverterView
 
         if (!Regex.IsMatch(inputText, @"^-?\d*,?\d*$"))
         {
-            ShowError(_incorrectInputMessage);
+            ShowError(IncorrectInputMessage);
 
             inputTemperatureTextBox.Text = inputText[..^1];
             inputTemperatureTextBox.SelectionStart = inputTemperatureTextBox.Text.Length;
@@ -100,7 +100,7 @@ public partial class TemperatureConverterView : Form, ITemperatureConverterView
         }
         catch (FormatException)
         {
-            ShowError(_incorrectInputMessage);
+            ShowError(IncorrectInputMessage);
         }
     }
 
